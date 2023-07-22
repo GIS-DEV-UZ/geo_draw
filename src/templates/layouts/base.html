@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/normalize.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <title>Geo Draw</title>
+</head>
+<body>
+    <header class="header">
+        <div class="container header__inner">
+            <a class="site__logo-link" href="#">
+                <img class="site__logo-img" src="{{ url_for('static', filename='images/logo.svg') }}" alt="site logo" width="200" height="31">
+            </a>
+            <a class="site__auth site__auth-login" href="{{ url_for('auth_route.user_login') }}">Тизимга кириш</a>
+        </div>
+    </header>
+</body>
+</html>

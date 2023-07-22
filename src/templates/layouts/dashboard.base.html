@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/normalize.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/responsive.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/map.css') }}">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    {% block link %}
+
+    {% endblock %}
+
+    <title>Geo Draw</title>
+</head>
+
+<body>
+    <div class="crop__dashboard">
+        <div class="crop__dashboard-inner">
+            <nav class="crop__dashboard-nav">
+                <a href="{{ url_for('base_route.home') }}" class="site__logo-link">
+                    <svg width="50" height="50" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M21.25 27.5C24.7018 27.5 27.5 24.7018 27.5 21.25C27.5 17.7982 24.7018 15 21.25 15C17.7982 15 15 17.7982 15 21.25C15 24.7018 17.7982 27.5 21.25 27.5Z"
+                            fill="#EDFF81" />
+                        <path
+                            d="M23.125 11.25C25.5412 11.25 27.5 9.29125 27.5 6.875C27.5 4.45875 25.5412 2.5 23.125 2.5C20.7088 2.5 18.75 4.45875 18.75 6.875C18.75 9.29125 20.7088 11.25 23.125 11.25Z"
+                            fill="white" />
+                        <path
+                            d="M6.91211 27.4624C9.32836 27.4624 11.2871 25.5036 11.2871 23.0874C11.2871 20.6712 9.32836 18.7124 6.91211 18.7124C4.49586 18.7124 2.53711 20.6712 2.53711 23.0874C2.53711 25.5036 4.49586 27.4624 6.91211 27.4624Z"
+                            fill="white" />
+                        <path
+                            d="M8.75 15C12.2018 15 15 12.2018 15 8.75C15 5.29822 12.2018 2.5 8.75 2.5C5.29822 2.5 2.5 5.29822 2.5 8.75C2.5 12.2018 5.29822 15 8.75 15Z"
+                            fill="#EDFF81" />
+                    </svg>
+                </a>
+                <ul class="crop__dashboard-list">
+                    <li
+                        class="crop__dashboard-item {{ (current_page=='map')|if_inline('crop__dashboard-item__active','') }}">
+                        <a href="{{ url_for('dashboard_route.show_map') }}" class="crop__dashboard-link">
+                            <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M28.4268 6.73373L20.4268 4.06707H20.3334C20.2714 4.06083 20.2088 4.06083 20.1468 4.06707H19.8401H19.6668H19.5734L12.0001 6.66707L4.42675 4.06707C4.22624 4.00095 4.01289 3.98339 3.80427 4.01584C3.59564 4.0483 3.39771 4.12983 3.22675 4.25373C3.05443 4.37642 2.91377 4.53835 2.8164 4.72614C2.71903 4.91393 2.66773 5.1222 2.66675 5.33373V24.0004C2.66603 24.2799 2.75318 24.5526 2.91588 24.7799C3.07857 25.0072 3.30859 25.1776 3.57342 25.2671L11.5734 27.9337C11.842 28.0213 12.1315 28.0213 12.4001 27.9337V27.9337L20.0001 25.4004L27.5734 28.0004C27.715 28.0196 27.8585 28.0196 28.0001 28.0004C28.2789 28.0043 28.551 27.9152 28.7734 27.7471C28.9457 27.6244 29.0864 27.4624 29.1838 27.2747C29.2811 27.0869 29.3324 26.8786 29.3334 26.6671V8.0004C29.3341 7.72087 29.247 7.44819 29.0843 7.22089C28.9216 6.9936 28.6916 6.82318 28.4268 6.73373V6.73373ZM10.6668 24.8137L5.33342 23.0404V7.18707L10.6668 8.9604V24.8137ZM18.6668 23.0404L13.3334 24.8137V8.9604L18.6668 7.18707V23.0404ZM26.6668 24.8137L21.3334 23.0404V7.18707L26.6668 8.9604V24.8137Z"
+                                    fill="currentColor" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li
+                        class="crop__dashboard-item {{ (current_page=='fields')|if_inline('crop__dashboard-item__active','') }}">
+                        <a href="{{ url_for('dashboard_route.show_fields') }}" class="crop__dashboard-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 32 32" width="32">
+                                <path
+                                    d="m0 19.8086124 6.54545455-14.36124398h3.27272727l3.27272728-5.44736842h7.3636364v12.8755981l6.5454545 3.9617225-6.5454545 9.9043062z"
+                                    style="fill:#d7d7d7;stroke:#fff;stroke-width:2;fill-rule:evenodd;fill-opacity:.25;stroke-linejoin:round"
+                                    transform="translate(1 1)" /></svg>
+                        </a>
+                    </li>
+                </ul>
+                {% include 'layer_panel.html' %}
+                <button class="crop__dashboard-panel__btn">
+                    <svg class="arrow-left" style="display: none;" width="32" height="32" viewBox="0 0 32 32"
+                        fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M15.0533 16.0003L19.7733 11.2803C20.0217 11.0304 20.1611 10.6925 20.1611 10.3403C20.1611 9.98801 20.0217 9.65007 19.7733 9.40026C19.6494 9.27529 19.5019 9.17609 19.3394 9.1084C19.177 9.04071 19.0027 9.00586 18.8267 9.00586C18.6507 9.00586 18.4764 9.04071 18.3139 9.1084C18.1514 9.17609 18.004 9.27529 17.88 9.40026L12.2267 15.0536C12.1017 15.1775 12.0025 15.325 11.9348 15.4875C11.8671 15.65 11.8323 15.8242 11.8323 16.0003C11.8323 16.1763 11.8671 16.3505 11.9348 16.513C12.0025 16.6755 12.1017 16.823 12.2267 16.9469L17.88 22.6669C18.0046 22.7905 18.1523 22.8883 18.3148 22.9546C18.4772 23.021 18.6512 23.0546 18.8267 23.0536C19.0021 23.0546 19.1761 23.021 19.3385 22.9546C19.501 22.8883 19.6488 22.7905 19.7733 22.6669C20.0217 22.4171 20.1611 22.0792 20.1611 21.7269C20.1611 21.3747 20.0217 21.0367 19.7733 20.7869L15.0533 16.0003Z"
+                            fill="white" />
+                    </svg>
+                    <svg class="arrow-right" width="32" height="32" viewBox="0 0 32 32" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M19.7734 15.0536L14.12 9.40026C13.9961 9.27529 13.8486 9.17609 13.6861 9.1084C13.5237 9.04071 13.3494 9.00586 13.1734 9.00586C12.9974 9.00586 12.8231 9.04071 12.6606 9.1084C12.4981 9.17609 12.3507 9.27529 12.2267 9.40026C11.9784 9.65007 11.839 9.98801 11.839 10.3403C11.839 10.6925 11.9784 11.0304 12.2267 11.2803L16.9467 16.0003L12.2267 20.7203C11.9784 20.9701 11.839 21.308 11.839 21.6603C11.839 22.0125 11.9784 22.3504 12.2267 22.6003C12.3513 22.7238 12.4991 22.8216 12.6615 22.888C12.824 22.9543 12.9979 22.9879 13.1734 22.9869C13.3489 22.9879 13.5228 22.9543 13.6853 22.888C13.8477 22.8216 13.9955 22.7238 14.12 22.6003L19.7734 16.9469C19.8984 16.823 19.9975 16.6755 20.0652 16.513C20.1329 16.3505 20.1678 16.1763 20.1678 16.0003C20.1678 15.8242 20.1329 15.65 20.0652 15.4875C19.9975 15.325 19.8984 15.1775 19.7734 15.0536Z"
+                            fill="white" />
+                    </svg>
+                </button>
+            </nav>
+            <main class="crop__dashboard-main">
+                <header class="crop__dashboard-header">
+                    fdfsdf
+                </header>
+                <div class="crop__dashboard-content">
+                    {% block dashboard_content %}
+
+                    {% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    {% block scripts %}
+
+    {% endblock %}
+
+</body>
+
+</html>

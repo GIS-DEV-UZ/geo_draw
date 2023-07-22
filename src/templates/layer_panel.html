@@ -1,0 +1,85 @@
+{% if current_page=='1' %}
+<div class="crop__dashboard-panel__container map__panel">
+    <h3 class="map__panel-title">НАСТРОЙКА ОТОБРАЖЕНИЯ КАРТЫ</h3>
+    <div class="map__panel-mapOptions__layer row">
+        <span class="map__panel-mapOptions__layerItem col-6">
+            <label>
+                <input type="radio" name="layers" value="mapbox" checked>
+                <img src="../../static/images/mapbox-satellite.png" alt="mapbox-satellite" width="100" height="100">
+                <div class="fqa-mapOptions-layerLabel">Mapbox</div>
+            </label>
+        </span>
+        <span class="map__panel-mapOptions__layerItem col-6">
+            <label>
+                <input type="radio" name="layers" value="osm">
+                <img src="../../static/images/osm-satellite.png" alt="osm-satellite" width="100" height="100">
+                <div class="fqa-mapOptions-layerLabel"> OSM</div>
+            </label>
+        </span>
+    </div>
+    <div class="map__panel-mapOptions__layer row">
+        <span class="map__panel-mapOptions__layerItem col-6">
+            <label>
+                <input type="radio" name="layers" value="google">
+                <img src="../../static/images/google-satellite.png" alt="google-satellite" width="100" height="100">
+                <div class="fqa-mapOptions-layerLabel">Спутник Google</div>
+            </label>
+        </span>
+        <span class="map__panel-mapOptions__layerItem col-6" style="display: none;">
+            <label>
+                <input type="radio" name="layers" value="dark">
+                <img src="../../static/images/dark-satellite.png" alt="dark-satellite" width="100" height="100">
+                <div class="fqa-mapOptions-layerLabel">Темное полотно</div>
+            </label>
+        </span>
+    </div>
+</div>
+{% elif current_page=='map' %}
+<div class="crop__dashboard-panel__container fields__panel">
+    <div class="fields__panel-inner">
+        <header class="fields__panel-header">
+            <h3 class="fields__panel-title">Field List</h3>
+        </header>
+        <section class="fields__panel-content">
+            <form class="fields__panel-form">
+                <div class="mb-3">
+                    <input type="text" class="form-control fields__panel-input" oninput="searchFieldName(this.value)" placeholder="Field name">
+                </div>
+                <div class="fields__panel-checklist row">
+                    <div class="mb-3 col-6">
+                        <div class="form-check">
+                            <input class="form-check-input field__crop-checkbox" type="checkbox" onclick="searchByCropName(this.value)" value="101010000" id="flexCheckDefault" checked>
+                            <label class="form-check-label text-white" for="flexCheckDefault">
+                                Paxta
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input field__crop-checkbox" type="checkbox" onclick="searchByCropName(this.value)" value="102010000" id="flexCheckChecked" checked>
+                            <label class="form-check-label text-white" for="flexCheckChecked">
+                                Bug`doy
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3 col-6">
+                        <div class="form-check">
+                            <input class="form-check-input field__crop-checkbox" type="checkbox" onclick="searchByCropName(this.value)" value="106010000" id="flexCheckDefault" checked>
+                            <label class="form-check-label text-white" for="flexCheckDefault">
+                                No`xat
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input field__crop-checkbox" type="checkbox" onclick="searchByCropName(this.value)" value="104040000" id="flexCheckChecked" checked>
+                            <label class="form-check-label text-white" for="flexCheckChecked">
+                                Piyoz
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <ul class="fields__panel-list">
+
+            </ul>
+        </section>
+    </div>
+</div>
+{% endif %}
