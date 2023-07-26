@@ -63,7 +63,6 @@ ul {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-
 }
 
 .crop__dashboard-inner {
@@ -119,7 +118,7 @@ ul {
 .crop__dashboard-list {
     padding: 0;
     margin: 0;
-    height: 100%;
+    height: calc(100% - 65.52px);
     list-style-type: none;
     display: flex;
     flex-direction: column;
@@ -181,9 +180,9 @@ ul {
     position: absolute;
     top: 65px;
     left: -500px;
-    /* left: 100%; */
     width: 300px;
-    height: 100%;
+    height: calc(100% - 64.55px);
+    /* height: 93vh; */
     background-color: rgba(0, 0, 0, 0.8);
     transition: left 0.6s;
     z-index: 800;
@@ -266,8 +265,11 @@ ul {
 
 .fields__panel {
     padding: 10px;
+    /* height: 100%; */
 }
 .fields__panel-inner {
+    /* height: calc(100% - 65.52px); */
+    height: 100%;
 }
 .fields__panel-header {
     margin-bottom: 8px;
@@ -278,6 +280,7 @@ ul {
     font-size: 24px;
 }
 .fields__panel-content {
+    height: calc(100% - 30px);
 }
 .fields__panel-form {
 }

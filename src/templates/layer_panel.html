@@ -1,4 +1,4 @@
-{% if current_page=='1' %}
+{% if current_page=='fields' %}
 <div class="crop__dashboard-panel__container map__panel">
     <h3 class="map__panel-title">НАСТРОЙКА ОТОБРАЖЕНИЯ КАРТЫ</h3>
     <div class="map__panel-mapOptions__layer row">
@@ -40,36 +40,41 @@
         <header class="fields__panel-header">
             <h3 class="fields__panel-title">Field List</h3>
         </header>
-        <section class="fields__panel-content">
+        <section class="fields__panel-content d-flex flex-column">
             <form class="fields__panel-form">
                 <div class="mb-3">
-                    <input type="text" class="form-control fields__panel-input" oninput="searchFieldName(this.value)" placeholder="Field name">
+                    <input type="text" class="form-control fields__panel-input" oninput="searchFieldName(this.value)"
+                        placeholder="Field name">
                 </div>
                 <div class="fields__panel-checklist row">
                     <div class="mb-3 col-6">
                         <div class="form-check">
-                            <input class="form-check-input field__crop-checkbox" type="checkbox" onclick="searchByCropName(this.value)" value="101010000" id="flexCheckDefault" checked>
-                            <label class="form-check-label text-white" for="flexCheckDefault">
+                            <input class="form-check-input field__crop-checkbox" type="checkbox"
+                                onclick="searchByCropName(this.value)" value="101010000" id="101010000" checked>
+                            <label class="form-check-label text-white" for="101010000">
                                 Paxta
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input field__crop-checkbox" type="checkbox" onclick="searchByCropName(this.value)" value="102010000" id="flexCheckChecked" checked>
-                            <label class="form-check-label text-white" for="flexCheckChecked">
+                            <input class="form-check-input field__crop-checkbox" type="checkbox"
+                                onclick="searchByCropName(this.value)" value="102010000" id="102010000" checked>
+                            <label class="form-check-label text-white" for="102010000">
                                 Bug`doy
                             </label>
                         </div>
                     </div>
                     <div class="mb-3 col-6">
                         <div class="form-check">
-                            <input class="form-check-input field__crop-checkbox" type="checkbox" onclick="searchByCropName(this.value)" value="106010000" id="flexCheckDefault" checked>
-                            <label class="form-check-label text-white" for="flexCheckDefault">
+                            <input class="form-check-input field__crop-checkbox" type="checkbox"
+                                onclick="searchByCropName(this.value)" value="106010000" id="106010000" checked>
+                            <label class="form-check-label text-white" for="106010000">
                                 No`xat
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input field__crop-checkbox" type="checkbox" onclick="searchByCropName(this.value)" value="104040000" id="flexCheckChecked" checked>
-                            <label class="form-check-label text-white" for="flexCheckChecked">
+                            <input class="form-check-input field__crop-checkbox" type="checkbox"
+                                onclick="searchByCropName(this.value)" value="104040000" id="104040000" checked>
+                            <label class="form-check-label text-white" for="104040000">
                                 Piyoz
                             </label>
                         </div>
@@ -77,8 +82,16 @@
                 </div>
             </form>
             <ul class="fields__panel-list">
-
+                
             </ul>
+            <button type="button" class="fields__panel-add__field btn btn-success d-flex justify-content-center mt-auto">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M19 11H13V5C13 4.73478 12.8946 4.48043 12.7071 4.29289C12.5196 4.10536 12.2652 4 12 4C11.7348 4 11.4804 4.10536 11.2929 4.29289C11.1054 4.48043 11 4.73478 11 5V11H5C4.73478 11 4.48043 11.1054 4.29289 11.2929C4.10536 11.4804 4 11.7348 4 12C4 12.2652 4.10536 12.5196 4.29289 12.7071C4.48043 12.8946 4.73478 13 5 13H11V19C11 19.2652 11.1054 19.5196 11.2929 19.7071C11.4804 19.8946 11.7348 20 12 20C12.2652 20 12.5196 19.8946 12.7071 19.7071C12.8946 19.5196 13 19.2652 13 19V13H19C19.2652 13 19.5196 12.8946 19.7071 12.7071C19.8946 12.5196 20 12.2652 20 12C20 11.7348 19.8946 11.4804 19.7071 11.2929C19.5196 11.1054 19.2652 11 19 11Z"
+                        fill="white" />
+                </svg>
+                Add Field
+            </button>
         </section>
     </div>
 </div>
