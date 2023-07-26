@@ -17,7 +17,9 @@ let map = new L.Map("map", {
     }),
 
 drawnItems = new L.FeatureGroup().addTo(map);
-let layers = L.layerGroup(null).addTo(map);
+let drawn_layers = L.layerGroup(null).addTo(map);
+let drawn_polygons_layer = null
+var featureGroup = L.featureGroup().addTo(map);
 
 let tileLayers = {
     'mapbox': mapbox,
