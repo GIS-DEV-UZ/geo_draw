@@ -4,6 +4,7 @@ from src.utils.extensions import oneid
 from pprint import pprint
 from src.models.user import User
 import os
+from flask_login import login_user
 
 base_route = Blueprint('base_route', __name__, url_prefix='/')
 
@@ -20,6 +21,7 @@ def params():
     data = oneid.Params_To_Dict(request.args)
     user = User.query.filter_by(user_id=data['user_id']).first()
     if user:
+        login_user(user)
         return redirect(url_for('dashboard_route.show_map'))
     else:
         user = User(user_id = data['user_id'],
@@ -33,5 +35,5 @@ def params():
                     mob_phone_no = data['mob_phone_no']
                     )
         user.save()
-        
+        login_user(user)
         return redirect(url_for('dashboard_route.show_map'))

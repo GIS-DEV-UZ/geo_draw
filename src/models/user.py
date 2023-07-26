@@ -1,6 +1,6 @@
 from src.models.base import Base
 from src.utils.extensions import db
-from flask_login import UserMixin
+from flask_login import UserMixin, login_user
 
 class User(Base, UserMixin):
     __tablename__ = 'user'
