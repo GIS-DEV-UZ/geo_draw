@@ -39,23 +39,25 @@ class Polygon(Base):
             "type": "FeatureCollection",
             "features": [],
         }
-        
         polygons = db.session.query(cls.place_name, cls.crop_code, cls.place_area, functions.ST_AsGeoJSON(cls.geometry), cls.id).filter_by(user_id = current_user.id).all()
-        for poly in polygons:
-            poly_obj = {
-                "type": "Feature",
-                "properties": {
-                    "id" : poly[4],
-                    "place_name" : poly[0],
-                    "crop_code" : poly[1],
-                    "place_area" : poly[2],
-                },
-                "geometry": loads(poly[3]),
-            }
-            featureLayer['features'].append(poly_obj)
-        
-        
-        return featureLayer
+        if polygons:            
+            for poly in polygons:
+                poly_obj = {
+                    "type": "Feature",
+                    "properties": {
+                        "id" : poly[4],
+                        "place_name" : poly[0],
+                        "crop_code" : poly[1],
+                        "place_area" : poly[2],
+                    },
+                    "geometry": loads(poly[3]),
+                }
+                featureLayer['features'].append(poly_obj)
+            
+            
+            return featureLayer
+        else:
+            return False
     
     def get_image(self):
         from src.routes.polygon import draw_polygon_coordinates
