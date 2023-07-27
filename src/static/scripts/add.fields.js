@@ -75,9 +75,9 @@ map.on("pm:create", (e) => {
 
     last_drawn_layer.addLayer(target_layer)
 
-    field_area = `${areaInHectares(featureLayer["features"][0]["geometry"]["coordinates"])} ga`
+    field_area = `${areaInHectares(featureLayer["features"][0]["geometry"]["coordinates"])}`
 
-    toolTip(target_layer, field_area)
+    area_tool_tip(target_layer, field_area)
 
 });
 
@@ -205,31 +205,6 @@ elFieldForm.addEventListener("submit", async (e) => {
     elFieldForm.reset()
     elFieldFormBox.classList.remove('field__add-leftSide-show')
 })
-
-
-// function onEachFeature(feature, layer) {
-//     layer.on({
-//         // mouseover: highlightFeature,
-//         // mouseout: resetHighlight,
-//         click: clickEachFeature
-//     });
-// }
-
-// function clickEachFeature(e){
-//     console.log(e);
-// }
-
-function toolTip(layer, area) {
-    layer.bindTooltip("<div><b>" + area + "</b></div>", {
-        direction: 'center',
-        permanent: true,
-        sticky: false,
-        offset: [10, 0],
-        opacity: 0.75,
-        className: 'leaflet-customTooltip'
-    });
-    // layer.bindTooltip('TEST',{permanent: true}).openTooltip();
-}
 
 
 // =============== MAKE FEATURELAYER ================ //

@@ -46,6 +46,8 @@ function addToMapDrawnLayers(featureGroup) {
             click: clickEachFeature
         });
         polygons_layer.addLayer(polygon)
+        let polygon_area = polygon.options.properties.place_area
+        area_tool_tip(polygon, polygon_area)
     })
     map.fitBounds(polygons_layer.getBounds())
 }
@@ -80,7 +82,7 @@ function searchByCropName() {
 
 
 
-// =================== GET BOUNDS FIELD ================== //
+// =================== GET FIELD BOUNDS IN FIELD LIST ================== //
 function getBoundsField(field_id) {
     polygons_layer.eachLayer(function (layer) {
         if (layer.options.type == 'Feature') {
@@ -92,7 +94,7 @@ function getBoundsField(field_id) {
 }
 
 
-// =================== BOUND TO FIELD ================== //
+// =================== GET FIELD BOUNDS AND SHOW POPUP IN MAP  ================== //
 function clickEachFeature(e){
     let field_id = e.target.options.properties.id
     boundToPolygon(field_id)
