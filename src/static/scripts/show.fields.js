@@ -14,6 +14,9 @@ function get_user_fields() {
         .then(res => {
             if (res) {
                 addToMapDrawnLayers(res)
+                res.features.forEach(feature => {
+                    fields__properties.push(feature.properties)
+                })
                 make_fields_list(fields__properties)
             } else {
                 console.log('Polygonlar yo`q');
@@ -25,13 +28,23 @@ get_user_fields()
 
 
 var polygons_layer = new L.FeatureGroup();
-function addToMapDrawnLayers(featureGroup){
+
+function addToMapDrawnLayers(featureGroup) {
     featureGroup.features.forEach(feature => {
         let coordinates = feature.geometry.coordinates
-        coordinates[0][0].forEach(coor=>{
+        coordinates[0][0].forEach(coor => {
             coor.reverse()
         })
-        var polygon = L.polygon(coordinates, {color: 'red'}).addTo(map);
+        var polygon = L.polygon(coordinates, {
+            properties: feature.properties,
+            color: 'red',
+            type: 'Feature'
+        }).addTo(map);
+        polygon.on({
+            // mouseover: highlightFeature,
+            // mouseout: resetHighlight,
+            click: clickEachFeature
+        });
         polygons_layer.addLayer(polygon)
     })
     map.fitBounds(polygons_layer.getBounds())
@@ -69,11 +82,18 @@ function searchByCropName() {
 
 // =================== GET BOUNDS FIELD ================== //
 function getBoundsField(field_id) {
-    map.eachLayer(function (layer) {
-        if (layer.feature) {
-            if (layer.feature.properties.id == field_id) {
+    polygons_layer.eachLayer(function (layer) {
+        if (layer.options.type == 'Feature') {
+            if (layer.options.properties.id == field_id) {
                 map.fitBounds(layer.getBounds())
             }
         }
     })
+}
+
+
+// =================== BOUND TO FIELD ================== //
+function clickEachFeature(e){
+    let field_id = e.target.options.properties.id
+    boundToPolygon(field_id)
 }

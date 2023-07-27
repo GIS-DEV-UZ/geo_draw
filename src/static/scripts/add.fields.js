@@ -8,6 +8,8 @@ const elFieldFormBox = document.querySelector('.field__add-leftSide')
 const elFieldFormImageWrapper = document.querySelector(".field__image-wrapper");
 const elFieldCancelBtn = document.querySelector('.field__form-cancel')
 const elFieldForm = document.getElementById("field__form");
+const elDashboardNav = document.querySelector('.crop__dashboard-nav')
+const elDashboardMain = document.querySelector('.crop__dashboard-main')
 
 
 // =================== CREATE FEATURE GROUP FOR LAST DRAWN LAYER ================== //
@@ -63,14 +65,11 @@ elAddFieldBtn.addEventListener('click', () => {
 
 // =============== GET FIELD GEOMETRIES ================ //
 let target_layer = null
-let first_drawn_layer = null
-let last_edited_layer = null
 map.on("pm:create", (e) => {
     elFieldAddPermBtn.style.display = 'block'
     elFieldDeleteBtn.style.display = 'block'
 
     target_layer = e.layer
-    first_drawn_layer = e.layer
 
     createFeatureLayer(target_layer)
 
@@ -81,6 +80,15 @@ map.on("pm:create", (e) => {
     toolTip(target_layer, field_area)
 
 });
+
+
+// =============== CUT FIELD ================ //
+map.on("pm:cut", (e) => {
+    target_layer = e.layer
+    last_drawn_layer.addLayer(target_layer)
+    createFeatureLayer(e.layer)
+});
+
 
 
 // =============== REMOVE FIELD ================ //
@@ -100,10 +108,6 @@ map.on("pm:remove", (e) => {
 });
 
 
-// =============== CUT FIELD ================ //
-map.on("pm:cut", (e) => {
-    createFeatureLayer(e.layer)
-});
 
 
 // =============== DRAG FIELD ================ //

@@ -36,10 +36,10 @@ function getCropName(crop_id) {
 // Bound to Polygon when clicked
 function boundToPolygon(poly_id) {
   map.eachLayer(function (layer) {
-    if (layer.feature) {
-      if (layer.feature.properties.id == poly_id) {
+    if (layer.options.type == 'Feature') {
+      if (layer.options.properties.id == poly_id) {
         map.fitBounds(layer.getBounds());
-        makePolygonPopup(layer, layer.feature.properties)
+        makePolygonPopup(layer, layer.options.properties)
       }
     }
   });
@@ -58,7 +58,7 @@ function makePolygonPopup(layer, properties) {
         </tr>
         <tr>
           <th>crop_name</th>
-          <td>${getCropName(properties.crop_name)}</td>
+          <td>${getCropName(properties.crop_code)}</td>
         </tr>
         <tr>
           <th>place_area</th>
