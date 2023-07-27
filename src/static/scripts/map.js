@@ -16,7 +16,7 @@ let map = new L.Map("map", {
         zoom: 13
     }),
 
-drawnItems = new L.FeatureGroup().addTo(map);
+    drawnItems = new L.FeatureGroup().addTo(map);
 let drawn_layers = L.layerGroup(null).addTo(map);
 let drawn_polygons_layer = null
 var featureGroup = L.featureGroup().addTo(map);
@@ -29,7 +29,7 @@ let tileLayers = {
 
 
 let layerControl = L.control.layers({}, {
-    mapbox:mapbox.addTo(map),
+    mapbox: mapbox.addTo(map),
     // google: google.addTo(map)
 }, {
     collapsed: false
@@ -43,9 +43,9 @@ radio_layers.forEach(radio_layer => {
         for (var i = 0, length = radio_layers.length; i < length; i++) {
             if (radio_layers[i].checked) {
                 let layer_name = radio_layers[i].value
-                if(layer_name in tileLayers){
-                    for(let layerName in tileLayers){
-                        if(map.hasLayer(tileLayers[layerName])){
+                if (layer_name in tileLayers) {
+                    for (let layerName in tileLayers) {
+                        if (map.hasLayer(tileLayers[layerName])) {
                             map.removeLayer(tileLayers[layerName])
                         }
                     }
@@ -91,3 +91,7 @@ L.control.scale({
 }).addTo(map);
 
 
+// =============== GET ZOOM WHEN MAP SCROLLED ================ //
+L.DomEvent.on(map.getContainer(), 'wheel', function () {
+    hide_area_tooltip(map.getZoom())
+});

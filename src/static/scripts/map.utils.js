@@ -20,6 +20,8 @@ let crop_list = [{
   }
 ]
 
+var popup = L.popup()
+
 // Polygon maydonini gektarlarda hisoblovchi funksiya
 function areaInHectares(coordinates) {
   var polygon = turf.polygon(coordinates);
@@ -69,8 +71,15 @@ function makePolygonPopup(layer, properties) {
           <td> <button class="btn btn-secondary" onClick="editPolygon(${properties.id})">Edit</button> </td>
         </tr>
     `;
-  var popup = L.popup().setContent(table);
+  popup.setContent(table);
   layer.bindPopup(popup).openPopup();
+  console.log(popup.isOpen());
+  if (popup.isOpen()) {
+    layer.closeTooltip()
+  } else {
+    console.log(popup.isOpen());
+    layer.openTooltip()
+  }
 }
 
 
@@ -113,5 +122,32 @@ function make_fields_list(props) {
                 </div>
             </li>
         `
+  })
+}
+
+
+// =============== MAKE AREA TOOLTIP FOR FIELD ================ //
+function area_tool_tip(layer, area) {
+  layer.bindTooltip("<div><b>" + area + " ga</b></div>", {
+    direction: 'center',
+    permanent: true,
+    sticky: false,
+    offset: [10, 0],
+    opacity: 0.75,
+    interactive: true,
+    className: 'leaflet-customTooltip'
+  });
+  // layer.bindTooltip('TEST',{permanent: true}).openTooltip();
+}
+
+
+// =============== HIDE AREA TOOLTIP WHEN MAP SCROOLED ================ //
+function hide_area_tooltip(zoom) {
+  polygons_layer.eachLayer(function (layer) {
+    if (zoom <= 15) {
+      layer.closeTooltip()
+    } else {
+      layer.openTooltip()
+    }
   })
 }
