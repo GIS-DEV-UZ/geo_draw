@@ -14,6 +14,7 @@ const elDashboardMain = document.querySelector('.crop__dashboard-main')
 
 // =================== CREATE FEATURE GROUP FOR LAST DRAWN LAYER ================== //
 let last_drawn_layer = new L.FeatureGroup();
+let field_area = null
 
 
 // =================== CONTROL OPTIONS ================== //
@@ -43,12 +44,13 @@ let featureLayer = {
     }, ],
 };
 
+
 // =============== SHOW FIELD ACTIONS ================ //
 elAddFieldBtn.addEventListener('click', () => {
     elDashboardNav.style.display = 'none'
     elDashboardMain.style.width = '100vw'
     elMapActions.style.display = 'flex'
-
+    document.querySelector('.crop__dashboard-header__text').textContent = 'Add Field Page'
     setTimeout(function () {
         window.dispatchEvent(new Event("resize"));
     }, 200);
@@ -74,10 +76,22 @@ map.on("pm:create", (e) => {
     createFeatureLayer(target_layer)
 
     last_drawn_layer.addLayer(target_layer)
+    
+    async function areaFetcher() {
+        const response = await fetch("/api/polygon/area", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(featureLayer["features"][0]["geometry"]["coordinates"]),
+        });
+        field_area = await response.json();
+        field_area = field_area.toFixed(2)
+        area_tool_tip(target_layer, field_area)
+    }
 
-    field_area = `${areaInHectares(featureLayer["features"][0]["geometry"]["coordinates"])}`
-
-    area_tool_tip(target_layer, field_area)
+    areaFetcher()
 
 });
 
@@ -153,7 +167,7 @@ if (elFieldAddPermBtn) {
             const image_id = await response.json();
             elFieldFormImageWrapper.innerHTML = `
                 <img class="field__image" src="${polyImageUrl.replace('-1', image_id.toString())}" alt="field image" width="350px" height="150px">
-                <span class="mt-2">${areaInHectares(featureLayer["features"][0]["geometry"]["coordinates"])} ga</span>
+                <span class="mt-2">${field_area} ga</span>
             `
         }
 
@@ -187,7 +201,7 @@ elFieldForm.addEventListener("submit", async (e) => {
     let data = {
         field_name: formData.get("field_name"),
         crop_code: crop_list.filter(crop => crop.val.toString() == formData.get("crop_name"))[0]['code'],
-        field_area: areaInHectares(featureLayer["features"][0]["geometry"]["coordinates"]),
+        field_area: field_area,
         geometry: featureLayer["features"][0]["geometry"]
     }
 
@@ -226,6 +240,3 @@ function createFeatureLayer(layer) {
 
 
 // =============== COUNT FIELD AREA ================ //
-function countFieldArea(){
-
-}

@@ -3,11 +3,13 @@ from flask_login import current_user
 from src.models.polygon import Polygon
 import json
 import datetime
+from geoalchemy2 import functions
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 from matplotlib.patches import Polygon as MT_Polygon
-
+from src.utils.extensions import db
+from sqlalchemy import text
 
 polygon_route = Blueprint('polygon_route', __name__, url_prefix='/api/polygon')
 
@@ -87,3 +89,14 @@ def polygon_draw():
         image_id = f"{current_time.minute}{current_time.second}{current_time.microsecond}"
         draw_polygon_coordinates(geometry['coordinates'][0][0], image_id)
         return jsonify(image_id)
+
+
+@polygon_route.route('/area', methods=['GET', 'POST'])
+def get_polygon_area():
+    if request.method == 'POST':
+        coordinates = request.get_json()
+        field_area = db.session.query(functions.ST_Area(functions.ST_GeomFromGeoJSON(json.dumps({
+                        "type": "MultiPolygon",
+                        "coordinates": [coordinates]
+                     }))) ).first()[0] * 1000000
+        return jsonify(field_area)
