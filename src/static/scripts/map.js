@@ -2,38 +2,35 @@ var osmUrl = "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     osmAttrib =
     '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     osm = L.tileLayer(osmUrl, {
-        maxZoom: 18,
+        maxZoom: 20,
         attribution: osmAttrib
     }),
     google = L.tileLayer("http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}", {
-        attribution: "google"
+        maxZoom: 20,
+        attribution: "Google"
     }),
-    mapbox = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWxndW5uZXIiLCJhIjoiY2xhbTJvNnBjMGJ2dTNyb2J2aGc1b2NxOSJ9.hDeNCNqIfplhruYD3miwOQ")
+    mapbox = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWxndW5uZXIiLCJhIjoiY2xhbTJvNnBjMGJ2dTNyb2J2aGc1b2NxOSJ9.hDeNCNqIfplhruYD3miwOQ", {
+        maxZoom: 20,
+        attribution: "Mapbox"
+    })
 
 
 let map = new L.Map("map", {
         center: new L.LatLng(41.311081, 69.240562),
         zoom: 13
     }),
-
     drawnItems = new L.FeatureGroup().addTo(map);
-let drawn_layers = L.layerGroup(null).addTo(map);
-let drawn_polygons_layer = null
+
 var featureGroup = L.featureGroup().addTo(map);
 
 let tileLayers = {
-    'mapbox': mapbox,
+    'mapbox': mapbox.addTo(map),
     'osm': osm,
     'google': google,
 }
 
 
-let layerControl = L.control.layers({}, {
-    mapbox: mapbox.addTo(map),
-    // google: google.addTo(map)
-}, {
-    collapsed: false
-})
+let layerControl = L.control.layers(tileLayers).addTo(map)
 
 // CHANGE LAYER
 var radio_layers = document.getElementsByName('layers');
@@ -63,6 +60,15 @@ radio_layers.forEach(radio_layer => {
 })
 
 
+// =============== HIDE CONTROL LAYERS ================ //
+const elControlLayerToggle = document.querySelector('.leaflet-control-layers-toggle')
+
+
+// elControlLayers.style.display = 'none'
+elControlLayerToggle.addEventListener('mouseover', ()=>{
+    console.log(elControlLayerToggle.parentElement);
+    elControlLayerToggle.parentElement.classList.remove('leaflet-control-layers-expanded')
+})
 
 
 // Create additional Control placeholders
