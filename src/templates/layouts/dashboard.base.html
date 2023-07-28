@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/normalize.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/responsive.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/map.css') }}">
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <!-- Option 1: Bootstrap Bundle with Popper -->
@@ -80,7 +80,9 @@
             </nav>
             <main class="crop__dashboard-main">
                 <header class="crop__dashboard-header">
-                    fdfsdf
+                    <header class="crop__dashboard-header">
+                        <h2 class="text-center crop__dashboard-header__text">All Fields Page</h2>
+                    </header>
                 </header>
                 <div class="crop__dashboard-content">
                     {% block dashboard_content %}

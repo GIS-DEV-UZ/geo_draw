@@ -9,12 +9,17 @@
 <!-- LEAFLET GEOMAN -->
 <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
 <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
+<script src="https://leaflet.github.io/Leaflet.draw/src/ext/GeometryUtil.js"></script>
+
 
 <!-- Turf js -->
 <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/map.css') }}">
 {% endblock %}
 
 {% block dashboard_content %}
+
 <div class="map__container">
     <div id="map"></div>
     <div class="map__actions">
