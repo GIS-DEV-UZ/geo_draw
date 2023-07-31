@@ -10,7 +10,7 @@ class Config():
     PORT = 5001
 
 class ProdConfig(Config):
-    pass
+    SQLALCHEMY_DATABASE_URI = 'postgresql://geo_draw_admin:Geo-draw2023@blurcode.uz:5432/geo_draw'
 
 class TestConfig(Config):
     pass
