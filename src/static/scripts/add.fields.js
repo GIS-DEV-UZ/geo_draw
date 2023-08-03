@@ -73,6 +73,10 @@ map.on("pm:create", (e) => {
 
     target_layer = e.layer
 
+    polygon_area_calculator(e, 'create')
+    areaInHectares(target_layer)
+    console.log(featureLayer);
+
     createFeatureLayer(target_layer)
 
     last_drawn_layer.addLayer(target_layer)
@@ -87,6 +91,7 @@ map.on("pm:create", (e) => {
             body: JSON.stringify(featureLayer["features"][0]["geometry"]["coordinates"]),
         });
         field_area = await response.json();
+        console.log('pgadmin : ', field_area);
         field_area = field_area.toFixed(2)
         area_tool_tip(target_layer, field_area)
     }
@@ -239,4 +244,60 @@ function createFeatureLayer(layer) {
 }
 
 
-// =============== COUNT FIELD AREA ================ //
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// =================== CALCULATE POLYGON AREA ================== //
+function polygon_area_calculator(e, edit_type) {
+    var seeArea = null
+    if (edit_type == 'cut') {
+        seeArea = L.GeometryUtil.geodesicArea(e.getLatLngs()[0]) / 10000;
+    }
+    var type = e.shape,
+        layer = e.layer;
+    if (type === 'Polygon') {
+        // drawn_layer.addLayer(layer);
+        seeArea = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]) / 10000;
+    }
+    console.log('leaflet : ', seeArea);
+    return seeArea
+}
+
+
+
+
+
+
+
+function areaInHectares(layer) {
+    let coordinates = [];
+    let field_area = null
+    let finalPoint = null;
+    let latlngs = layer._latlngs[0]
+
+    finalPoint = [latlngs[0]["lng"], latlngs[0]["lat"]];
+    latlngs.forEach((latlng) => {
+        coordinates.push([latlng.lng, latlng.lat]);
+    });
+    coordinates.push(finalPoint)
+    var polygon = turf.polygon([coordinates]);
+    var area = turf.area(polygon);
+    var inHectares = turf.convertArea(area, "meters", "hectares");
+    console.log('turf : ', inHectares);
+    return inHectares;
+}
