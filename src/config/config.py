@@ -12,7 +12,8 @@ class Config():
     PORT = config('PORT', cast=int)
 
 class ProdConfig(Config):
-    SQLALCHEMY_DATABASE_URI = config('SQLALCHEMY_DATABASE_URI')
+    # SQLALCHEMY_DATABASE_URI = config('SQLALCHEMY_DATABASE_URI')
+    pass
 
 class TestConfig(Config):
     pass
