@@ -1,12 +1,13 @@
 // =================== GET HTML ELEMENTS ================== //
 const elAddFieldBtn = document.querySelector('.fields__panel-add__field')
+const elAddForm = document.querySelector('.field__add-form')
 const elMapActions = document.querySelector('.map__actions')
 const elFieldAddPermBtn = document.querySelector('.map__addPerm-btn')
 const elFieldDeleteBtn = document.querySelector('.map__delete-btn')
 const elFieldDrawBtn = document.querySelector('.map__draw-btn')
-const elFieldFormBox = document.querySelector('.field__add-leftSide')
+const elFieldAddFormBox = document.querySelector('.field__add-leftSide')
 const elFieldFormImageWrapper = document.querySelector(".field__image-wrapper");
-const elFieldCancelBtn = document.querySelector('.field__form-cancel')
+const elFieldFormCancelBtn = document.querySelector('.field__form-cancel')
 const elFieldForm = document.getElementById("field__form");
 const elDashboardNav = document.querySelector('.crop__dashboard-nav')
 const elDashboardMain = document.querySelector('.crop__dashboard-main')
@@ -146,13 +147,13 @@ if (elFieldAddPermBtn) {
     elFieldAddPermBtn.addEventListener('click', () => {
         elFieldAddPermBtn.style.display = 'none'
         elFieldDeleteBtn.style.display = 'none'
-        elFieldFormBox.classList.add('field__add-leftSide-show')
+        elFieldAddFormBox.classList.add('field__add-leftSide-show')
         map.pm.removeControls(controls)
 
-        let elFieldFormBox_width = 450
+        let elFieldAddFormBox_width = 450
         setTimeout(function () {
             map.fitBounds(target_layer.getBounds(), {
-                'paddingTopLeft': [elFieldFormBox_width + 10, 10]
+                'paddingTopLeft': [elFieldAddFormBox_width + 10, 10]
             });
         }, 100);
 
@@ -186,8 +187,8 @@ if (elFieldAddPermBtn) {
 
 
 // =============== CANCEL FORM FIELD ================ //
-elFieldCancelBtn.addEventListener('click', () => {
-    elFieldFormBox.classList.remove('field__add-leftSide-show')
+elFieldFormCancelBtn.addEventListener('click', () => {
+    elFieldAddFormBox.classList.remove('field__add-leftSide-show')
     elFieldAddPermBtn.style.display = 'block'
     elFieldDeleteBtn.style.display = 'block'
     setTimeout(function () {
@@ -222,66 +223,8 @@ elFieldForm.addEventListener("submit", async (e) => {
     let result = await response.json();
 
     elFieldForm.reset()
-    elFieldFormBox.classList.remove('field__add-leftSide-show')
+    elFieldAddFormBox.classList.remove('field__add-leftSide-show')
 })
-
-
-// =============== MAKE FEATURELAYER ================ //
-function createFeatureLayer(layer) {
-    let coordinates = [];
-    let field_area = null
-    let finalPoint = null;
-    let latlngs = layer._latlngs[0]
-
-    finalPoint = [latlngs[0]["lng"], latlngs[0]["lat"]];
-    latlngs.forEach((latlng) => {
-        coordinates.push([latlng.lng, latlng.lat]);
-    });
-    coordinates.push(finalPoint);
-    featureLayer["features"][0]["geometry"]["coordinates"][0] = [
-        ...coordinates,
-    ];
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// =================== CALCULATE POLYGON AREA ================== //
-function polygon_area_calculator(e, edit_type) {
-    var seeArea = null
-    if (edit_type == 'cut') {
-        seeArea = L.GeometryUtil.geodesicArea(e.getLatLngs()[0]) / 10000;
-    }
-    var type = e.shape,
-        layer = e.layer;
-    if (type === 'Polygon') {
-        // drawn_layer.addLayer(layer);
-        seeArea = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]) / 10000;
-    }
-    console.log('leaflet : ', seeArea);
-    return seeArea
-}
-
-
-
-
-
 
 
 function areaInHectares(layer) {
