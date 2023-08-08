@@ -1,1 +1,1 @@
-web: gunicorn geo_draw.wsgi
+web: gunicorn app:app
