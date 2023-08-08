@@ -73,7 +73,6 @@ function makePolygonPopup(layer, properties) {
     `;
   popup.setContent(table);
   layer.bindPopup(popup).openPopup();
-  console.log(popup.isOpen());
   if (popup.isOpen()) {
     layer.closeTooltip()
   } else {
@@ -150,4 +149,137 @@ function hide_area_tooltip(zoom) {
       layer.openTooltip()
     }
   })
+}
+
+
+
+// =============== MAKE FEATURELAYER ================ //
+function createFeatureLayer(layer) {
+  let coordinates = [];
+  let field_area = null
+  let finalPoint = null;
+  let latlngs = layer._latlngs[0]
+
+  finalPoint = [latlngs[0]["lng"], latlngs[0]["lat"]];
+  latlngs.forEach((latlng) => {
+    coordinates.push([latlng.lng, latlng.lat]);
+  });
+  coordinates.push(finalPoint);
+  featureLayer["features"][0]["geometry"]["coordinates"][0] = [
+    ...coordinates,
+  ];
+}
+
+
+function FeatureLayer(layer) {
+  this.field_coords = [];
+  this.finalPoint = null;
+  this.latlngs = null
+  this.len = layer._latlngs[0].length
+  this.featureLayer = {
+    type: "FeatureCollection",
+    features: [{
+      type: "Feature",
+      properties: {},
+      geometry: {
+        coordinates: [],
+        type: "Polygon",
+      },
+    }, ],
+  };
+
+  this.polygon = null
+
+  if (this.len == 1) {
+    this.latlngs = layer._latlngs[0][0]
+  } else {
+    this.latlngs = layer._latlngs[0]
+  }
+
+  this.finalPoint = [this.latlngs[0]["lng"], this.latlngs[0]["lat"]];
+  this.latlngs.forEach((latlng) => {
+    this.field_coords.push([latlng.lng, latlng.lat]);
+  });
+  this.field_coords.push(this.finalPoint)
+
+  this.featureLayer["features"][0]["geometry"]["coordinates"][0] = [
+    ...this.field_coords,
+  ];
+
+  return this.featureLayer
+
+}
+
+
+
+// =============== MAKE POLYGON ================ //
+function Polygon(layer, options) {
+  this.field_coords = [];
+  this.finalPoint = null;
+  this.latlngs = null
+  this.len = layer._latlngs[0].length
+  this.polygon = null
+  // Options
+  this.title = options.title
+  this.fillColor = options.fillColor
+  this.fillOpacity = options.fillOpacity
+  this.weight = options.weight
+  this.color = options.color
+  this.opacity = options.opacity
+  this.fill = options.fill
+  this.dashArray = options.dashArray
+  this.polygon = options.polygon
+  this.polygon_geojson = null
+
+  if (this.len == 1) {
+    this.latlngs = layer._latlngs[0][0]
+  } else {
+    this.latlngs = layer._latlngs[0]
+  }
+
+  this.finalPoint = [this.latlngs[0]["lat"], this.latlngs[0]["lng"]];
+  this.latlngs.forEach((latlng) => {
+    this.field_coords.push([latlng.lat, latlng.lng]);
+  });
+  this.field_coords.push(this.finalPoint)
+
+  this.polygon = L.polygon(this.field_coords, {
+    title: this.title,
+    fillColor: this.fillColor,
+    fillOpacity: this.fillOpacity,
+    weight: this.weight,
+    color: this.color,
+    opacity: this.opacity,
+    dashArray: this.dashArray,
+    polygon: this.polygon,
+    fill: this.fill
+  })
+
+  this.polygon_geojson = this.polygon.toGeoJSON()
+
+  return this.polygon
+}
+
+
+
+// =================== CALCULATE POLYGON AREA ================== //
+function polygon_area_calculator(e, edit_type) {
+  console.log(e, edit_type);
+  var field_area = null
+  var type = e.shape,
+  layer = e.layer;
+  if (edit_type == 'cut') {
+      field_area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]) / 10000;
+  }
+  console.log(layer);
+  if(layer){
+    if (type === 'Polygon') {
+      // drawn_layer.addLayer(layer);
+      field_area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]) / 10000;
+    }
+  } else {
+    field_area = L.GeometryUtil.geodesicArea(e.getLatLngs()[0]) / 10000;
+  }
+  // console.log('leaflet : ', field_area);
+  return field_area.toFixed(2)
 }
