@@ -8,8 +8,7 @@ def create_app(config:str):
 
     if config in ['dev', 'prod', 'test']:
         app.config.from_object(f"src.config.config.{config.capitalize()}Config")
-        print(f"src.config.config.{config.capitalize()}Config")
-        print(app.config.from_object(f"src.config.config.{config.capitalize()}Config"))
+        
     register_blueprints(app)
     register_extensions(app)
     register_filters(app)

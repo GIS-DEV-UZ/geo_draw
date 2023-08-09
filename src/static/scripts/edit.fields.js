@@ -18,6 +18,8 @@ function editPolygon(field_id) {
     elMapActions.style.display = 'flex'
     document.querySelector('.crop__dashboard-header__text').textContent = 'Edit Field Page'
 
+    get_user_fields(field_id)
+
     map.eachLayer(function (layer) {        
         let field_props = layer?.options?.properties
         let field_props_len = null
@@ -160,6 +162,18 @@ elFieldEditBtn.addEventListener('click', ()=>{
 
 
 
+// =================== GET USER FIELDS ================== //
+function get_user_fields(field_id) {
+    fetch(`/api/polygon/get?field_id=${field_id}`)
+        .then(res => res.json())
+        .then(res => {
+            if (res) {
+                console.log(res);
+            } else {
+                console.log('Polygonlar yo`q');
+            }
+        })
+}
 
 
 

@@ -70,6 +70,15 @@ def get_polygon():
     data = Polygon.get()
     return jsonify(data)
 
+
+@polygon_route.route('/get', methods=['GET', 'POST'])
+def get_info_polygon():
+    if request.method == 'POST':
+        req_data = request.get_json()
+        print(req_data)
+    return jsonify(req_data)
+
+
 @polygon_route.route('/<int:poly_id>/image', methods=['GET', 'POST'])
 def get_polygon_image(poly_id):
     return send_from_directory("uploads", f"{poly_id}.png")
