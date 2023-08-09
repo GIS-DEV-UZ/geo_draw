@@ -3,13 +3,14 @@ from flask_login import current_user
 from src.models.polygon import Polygon
 import json
 import datetime
-from geoalchemy2 import functions
+from geoalchemy2 import functions, elements
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 from matplotlib.patches import Polygon as MT_Polygon
 from src.utils.extensions import db
 from sqlalchemy import text
+from shapely.geometry import shape
 
 polygon_route = Blueprint('polygon_route', __name__, url_prefix='/api/polygon')
 
@@ -71,12 +72,15 @@ def get_polygon():
     return jsonify(data)
 
 
-@polygon_route.route('/get', methods=['GET', 'POST'])
-def get_info_polygon():
-    if request.method == 'POST':
-        req_data = request.get_json()
-        print(req_data)
-    return jsonify(req_data)
+@polygon_route.route('/get/<int:field_id>', methods=['GET', 'POST'])
+def get_info_polygon(field_id):
+    field = db.session.query(Polygon).filter_by(id=field_id).first()
+    field_obj = {
+        "place_name" : field.place_name,
+        "crop_code" : field.crop_code,
+        "id" : field.id
+    }
+    return jsonify(field_obj)
 
 
 @polygon_route.route('/<int:poly_id>/image', methods=['GET', 'POST'])
@@ -109,3 +113,23 @@ def get_polygon_area():
                         "coordinates": [coordinates]
                      }))) ).first()[0] * 1000000
         return jsonify(field_area)
+    
+
+@polygon_route.route('/update/<int:field_id>', methods=['PUT'])
+def update_polygon(field_id):
+    if request.method == 'PUT':
+        req_data = request.get_json()
+        field = db.session.query(Polygon).filter_by(id=field_id).first()
+        field.place_name = req_data['field_name']
+        field.crop_code = req_data['crop_code']
+        field.place_area = req_data['field_area']        
+        
+        geometry = req_data['geometry']
+        if geometry['type'] == 'Polygon':
+            geometry['coordinates'] = [geometry['coordinates']]
+            geometry['type'] = 'MultiPolygon'
+        
+        geometry = shape(geometry)
+        field.geometry = elements.WKBElement(geometry.wkb, srid=4326)
+        db.session.commit()
+        return jsonify('Polygon updated')
