@@ -1,8 +1,11 @@
 const elFieldCancel = document.querySelector('.map__cancel-btn.edit')
 const elFieldEditFormCloseBtn = document.querySelector('.field__form-edit-cancel')
+const elFieldEditFormSaveBtn = document.querySelector('.field__form-edit-save')
 const elFieldEditPermBtn = document.querySelector('.map__editPerm-btn')
 const elFieldEditFormBox = document.querySelector('.field__edit-leftSide')
+const fieldEditForm = document.querySelector('.field__edit-form')
 const elFieldEditBtn = document.querySelector('.map__edit-btn')
+const elFieldEditFormImageWrapper = document.querySelector(".field__image-wrapper.edit");
 let editable_layer = new L.FeatureGroup().addTo(map);
 let editable_feature_group = new L.FeatureGroup().addTo(map);
 let original_field_border = null
@@ -11,8 +14,12 @@ let last_edited_layer = null
 let cutted_layer = null
 let editable_polygon = null
 let polygon_border = null
+let polygon_feature_for_save = null
+let polygon_layer_for_save = null
+let editable_field_id = null
 
 function editPolygon(field_id) {
+    editable_field_id = field_id
     elDashboardNav.style.display = 'none'
     elDashboardMain.style.width = '100vw'
     elMapActions.style.display = 'flex'
@@ -29,8 +36,6 @@ function editPolygon(field_id) {
         if (field_props_len) {
             if (layer.options.properties.id == field_id) {
                 original_field = layer
-                console.log(layer);
-                console.log(polygon_area_calculator(layer, ''));
                 area_tool_tip(layer, polygon_area_calculator(layer, ''))
                 map.pm.addControls({
                     position : 'topright',
@@ -62,8 +67,9 @@ function editPolygon(field_id) {
                     color: "black",
                     weight: "3",
                     opacity: 0.7,
-                    fill: false,
-                    fillColor: null,
+                    fill: true,
+                    fillColor: '#ced4da',
+                    fillOpacity : 0.5,
                     dashArray: "10 10",
                     polygon: editable_polygon,
                 }) 
@@ -96,6 +102,8 @@ editable_layer.on("pm:edit", (e) => {
     elFieldEditBtn.style.display = 'none'
     last_edited_layer = e.layer
     editable_layer.addLayer(last_edited_layer)
+    polygon_feature_for_save = new FeatureLayer(last_edited_layer)
+    polygon_layer_for_save = last_edited_layer
     area_tool_tip(last_edited_layer, polygon_area_calculator(e, ''))
 });
 
@@ -105,17 +113,57 @@ elFieldEditPermBtn.addEventListener('click', ()=>{
     elFieldEditPermBtn.style.display = 'none'
     elFieldCancel.style.display = 'none'
     elFieldEditBtn.style.display = 'none'
+
+    let elFieldAddFormBox_width = 450
+        setTimeout(function () {
+            map.fitBounds(polygon_layer_for_save.getBounds(), {
+                'paddingTopLeft': [elFieldAddFormBox_width + 10, 10]
+            });
+        }, 100);
+
+        let img_data = {
+            geometry: polygon_feature_for_save["features"][0]["geometry"]
+        }
+
+        let image_id = null
+        async function imageFetcher() {
+            const response = await fetch("/api/polygon/draw", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(img_data),
+            });
+            const image_id = await response.json();
+            elFieldEditFormImageWrapper.innerHTML = `
+                <img class="field__image" src="${polyImageUrl.replace('-1', image_id.toString())}" alt="field image" width="350px" height="150px">
+                <span class="mt-2">${polygon_area_calculator(polygon_layer_for_save, '')} ga</span>
+            `
+        }
+
+        setTimeout(function () {
+            window.dispatchEvent(new Event("resize"));
+        }, 200);
+
+        imageFetcher()
+
+
 })
 
 
 elFieldEditFormCloseBtn.addEventListener('click', ()=>{
     elFieldEditFormBox.classList.remove('field__edit-leftSide-show')
     elFieldEditBtn.style.display = 'block'
+    elFieldEditPermBtn.style.display = 'block'
+    map.pm.disableGlobalEditMode();
 })
 
 map.on("pm:cut", (e) => {
     cutted_layer = e.layer
     editable_layer.addLayer(cutted_layer)
+    polygon_feature_for_save = new FeatureLayer(cutted_layer)
+    polygon_layer_for_save = cutted_layer
     area_tool_tip(cutted_layer, polygon_area_calculator(e, 'cut'))
 });
 
@@ -147,10 +195,9 @@ elFieldCancel.addEventListener('click', ()=>{
     let e = null
     for(let [key, val] of Object.entries(original_field_border._eventParents)){
         e = original_field_border._eventParents[key].pm._layers[0]
-        console.log(e);
     }
     area_tool_tip(original_field_border, polygon_area_calculator(e, ''))
-    // console.log(original_field_border);
+    
     map.pm.disableGlobalEditMode();
 })
 
@@ -161,14 +208,47 @@ elFieldEditBtn.addEventListener('click', ()=>{
 })
 
 
+// =================== SAVE EDITED FIELDS ================== //
+elFieldEditFormSaveBtn.addEventListener('click', ()=>{
+
+})
+
+// =============== SAVE FIELD ================ //
+fieldEditForm.addEventListener("submit", async (e) => {
+    // e.preventDefault();
+    let formData = new FormData(fieldEditForm);
+    let data = {
+        field_name: formData.get("field_name"),
+        crop_code: crop_list.filter(crop => crop.val.toString() == formData.get("crop_name"))[0]['code'],
+        field_area: polygon_area_calculator(polygon_layer_for_save, ''),
+        geometry: polygon_feature_for_save["features"][0]["geometry"]
+    }
+
+    let response = await fetch(`/api/polygon/update/${editable_field_id}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+
+    let result = await response.json();
+
+    fieldEditForm.reset()
+    // elFieldAddFormBox.classList.remove('field__add-leftSide-show')
+})
+
+
 
 // =================== GET USER FIELDS ================== //
 function get_user_fields(field_id) {
-    fetch(`/api/polygon/get?field_id=${field_id}`)
+    fetch(`/api/polygon/get/${field_id}`)
         .then(res => res.json())
         .then(res => {
             if (res) {
-                console.log(res);
+                document.querySelector('.fieldName.edit').value = res.place_name
+                document.querySelector('.form-select.edit').value = crop_list.filter(crop => crop.code == res.crop_code)[0]['val']
             } else {
                 console.log('Polygonlar yo`q');
             }

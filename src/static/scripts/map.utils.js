@@ -76,7 +76,6 @@ function makePolygonPopup(layer, properties) {
   if (popup.isOpen()) {
     layer.closeTooltip()
   } else {
-    console.log(popup.isOpen());
     layer.openTooltip()
   }
 }
@@ -264,14 +263,12 @@ function Polygon(layer, options) {
 
 // =================== CALCULATE POLYGON AREA ================== //
 function polygon_area_calculator(e, edit_type) {
-  console.log(e, edit_type);
   var field_area = null
   var type = e.shape,
   layer = e.layer;
   if (edit_type == 'cut') {
       field_area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]) / 10000;
   }
-  console.log(layer);
   if(layer){
     if (type === 'Polygon') {
       // drawn_layer.addLayer(layer);

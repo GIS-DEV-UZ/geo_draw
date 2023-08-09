@@ -99,16 +99,17 @@
         <form class="field__edit-form  h-100 d-block" id="field__form">
             <legend class="field__legend text-center">Edit Field</legend>
             <div class="mb-3">
-                <div class="field__image-wrapper d-flex flex-column align-items-center">
+                <div class="field__image-wrapper edit d-flex flex-column align-items-center">
 
                 </div>
             </div>
             <div class="mb-3">
                 <label for="fieldName" class="form-label">Field Name</label>
-                <input type="text" class="form-control" id="fieldName" name="field_name" required>
+                <input type="text" class="form-control fieldName edit" id="fieldName" name="field_name" value="" required>
             </div>
             <div class="mb-3">
-                <select class="form-select" name="crop_name" aria-label="Default select example" required>
+                <label  class="form-label">Crop Name</label>
+                <select class="form-select edit" name="crop_name" aria-label="Default select example" required>
                     <option selected disabled>Crop name</option>
                     <option value="1">Paxta</option>
                     <option value="2">Bug`doy</option>
@@ -117,7 +118,7 @@
                 </select>
             </div>
             <div class="field__actions mb-3 d-flex flex-column">
-                <button type="submit" class="field__form-edit btn btn-primary mb-2">Save</button>
+                <button type="submit" class="field__form-edit-save btn btn-primary mb-2">Save</button>
                 <button type="button" class="field__form-edit-cancel btn btn-secondary">Cancel</button>
             </div>
         </form>
