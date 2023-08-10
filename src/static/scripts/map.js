@@ -24,9 +24,9 @@ let map = new L.Map("map", {
 var featureGroup = L.featureGroup().addTo(map);
 
 let tileLayers = {
-    'mapbox': mapbox.addTo(map),
+    'mapbox': mapbox,
     'osm': osm,
-    'google': google,
+    'google': google.addTo(map),
 }
 
 
