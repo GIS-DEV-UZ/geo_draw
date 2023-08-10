@@ -133,3 +133,11 @@ def update_polygon(field_id):
         field.geometry = elements.WKBElement(geometry.wkb, srid=4326)
         db.session.commit()
         return jsonify('Polygon updated')
+
+
+@polygon_route.route('/delete/<int:field_id>')
+def delete_polygon(field_id):
+    deletable_polygon = db.session.query(Polygon).filter_by(id=field_id).first()
+    db.session.delete(deletable_polygon)
+    db.session.commit()
+    return jsonify('Polygon deleted')

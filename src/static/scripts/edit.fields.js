@@ -256,6 +256,17 @@ function get_user_fields(field_id) {
 }
 
 
+function deletePolygon(field_id){
+    console.log();
+    if(confirm('Polygonni o`chirishni hohlayszmi?')){
+        fetch(`/api/polygon/delete/${field_id}`)
+        .then(res => res.json())
+        .then(res => {
+            console.log(res);
+        })
+    }
+}
+
 
 
 
