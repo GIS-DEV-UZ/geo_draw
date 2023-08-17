@@ -15,6 +15,7 @@ const elDashboardMain = document.querySelector('.crop__dashboard-main')
 
 // =================== CREATE FEATURE GROUP FOR LAST DRAWN LAYER ================== //
 let last_drawn_layer = new L.FeatureGroup({
+    pmIgnore: true,
     snapIgnore: false
 });
 let field_area = null
@@ -58,9 +59,7 @@ elAddFieldBtn.addEventListener('click', () => {
     setTimeout(function () {
         window.dispatchEvent(new Event("resize"));
     }, 200);
-    map.pm.enableDraw("Polygon", {
-        snappable: true
-    })
+    
     map.pm.addControls(controls)
     polygons_layer.eachLayer(layer => {
         // This has no effect
@@ -80,6 +79,11 @@ map.on("pm:create", (e) => {
     elFieldDeleteBtn.style.display = 'block'
 
     target_layer = e.layer
+    map.pm.enableDraw("Polygon", {
+        snappable: true,
+        snapDistance: 20,
+    })
+    map.pm.disableDraw();
 
     if (shape_type == "Line") {
         line_length = line_length_calculator(target_layer)

@@ -42,7 +42,11 @@ get_user_fields()
 
 
 
-var polygons_layer = new L.FeatureGroup();
+var polygons_layer = new L.FeatureGroup({
+    pmIgnore: true,
+    snapIgnore: false
+});
+
 
 function addToMapDrawnLayers(featureGroup) {
     featureGroup.features.forEach(feature => {
@@ -53,10 +57,11 @@ function addToMapDrawnLayers(featureGroup) {
                 coor.reverse()
             })
             var polygon = L.polygon(coordinates, {
-                properties: feature.properties,
+                properties: {...feature.properties, pmIgnore: true, snapIgnore: false},
                 color: 'red',
                 type: 'Feature'
             }).addTo(map);
+            console.log(polygon);
             polygon.on({
                 // mouseover: highlightFeature,
                 // mouseout: resetHighlight,
@@ -68,12 +73,11 @@ function addToMapDrawnLayers(featureGroup) {
         } else if(feature.geometry.type == "LineString"){
             let coordinates = feature.geometry.coordinates
             coordinates.forEach(coor => {
-                console.log(coor);
                 coor.reverse()
             })
             var line = L.polyline(coordinates, {
                 properties: feature.properties,
-                color: 'red',
+                color: '#fcc419',
                 type: 'Feature'
             }).addTo(map);
             line.on({
