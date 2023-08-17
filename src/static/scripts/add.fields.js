@@ -66,6 +66,7 @@ elAddFieldBtn.addEventListener('click', () => {
         // layer.pm.disable();
         // But this has
         layer._pmTempLayer = {};
+        layer.options.snapIgnore = false
     })
 })
 
@@ -94,8 +95,6 @@ map.on("pm:create", (e) => {
         console.log(target_layer.toGeoJSON());
     } else if (shape_type == "Polygon") {
         polygon_length_calculator(target_layer)
-        let abc = new FeatureLayer(target_layer, shape_type)
-        console.log(abc);
         polygon_area_calculator(e, 'create')
         areaInHectares(target_layer)
 

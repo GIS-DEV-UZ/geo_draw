@@ -62,11 +62,13 @@ function boundToLine(e) {
 
 // Make Polygon Popup when clicked
 function makePolygonPopup(layer, properties) {
+  let geo_type = layer.feature.geometry.type
   var table = document.createElement("table");
   var thead = document.createElement("thead")
   table.appendChild(thead)
   table.className = "table table-hover popup__table"
-  thead.innerHTML = `
+  if (geo_type == "MultiPolygon") {
+    thead.innerHTML = `
         <tr>
           <th>place_name</th>
           <td>${properties.place_name}</td>
@@ -84,8 +86,25 @@ function makePolygonPopup(layer, properties) {
           <td> <button class="btn btn-secondary" onClick="editPolygon(${properties.id})">Edit</button> </td>
         </tr>
     `;
-  popup.setContent(table);
-  layer.bindPopup(popup).openPopup();
+  }
+  if (geo_type == "LineString") {
+    thead.innerHTML = `
+        <tr>
+          <th>place_name</th>
+          <td>${properties.place_name}</td>
+        </tr>
+        <tr>
+          <th>place_length</th>
+          <td>${properties.place_length} km</td>
+        </tr>
+        <tr>
+          <th> <button class="btn btn-danger" onClick="deletePolygon(${properties.id})">Delete</button> </th>
+          <td> <button class="btn btn-secondary" onClick="editPolygon(${properties.id})">Edit</button> </td>
+        </tr>
+    `;
+  }
+  // popup.setContent(table);
+  layer.bindPopup(table).openPopup();
   if (popup.isOpen()) {
     layer.closeTooltip()
   } else {
@@ -99,42 +118,98 @@ function makePolygonPopup(layer, properties) {
 // =================== MAKE FIELDS LIST ================== //
 let fields__list = document.querySelector('.fields__panel-list')
 
-function make_fields_list(props) {
+function make_fields_list(fields_feature) {
   fields__list.innerHTML = ''
-  props.forEach(prop => {
-    fields__list.innerHTML += `
-            <li class="fields__panel-item" onclick="getBoundsField(${prop.id})">
-                <div class="fields__panel-item__left">
-                    <img src="../static/images/azure-satellite.png" alt="field 1" width="50" height="50">
-                    <div class="fields__panel-item__info">
-                        <h5 class="fields__panel-field__name">${prop.place_name}</h5>
-                        <div class="d-flex">
-                            <h4 class="fields__panel-crop__name">${getCropName(prop.crop_code)}</h4>
-                            <h4 class="fields__panel-field__area">${prop.place_area} ga</h4>
-                        </div>
-                    </div>
-                </div>
-                <div class="fields__panel-item__right">
-                    <button class="fields__panel-menu__btn">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z"
-                                fill="black" />
-                            <path
-                                d="M5 14C6.10457 14 7 13.1046 7 12C7 10.8954 6.10457 10 5 10C3.89543 10 3 10.8954 3 12C3 13.1046 3.89543 14 5 14Z"
-                                fill="black" />
-                            <path
-                                d="M19 14C20.1046 14 21 13.1046 21 12C21 10.8954 20.1046 10 19 10C17.8954 10 17 10.8954 17 12C17 13.1046 17.8954 14 19 14Z"
-                                fill="black" />
-                        </svg>
-                    </button>
-
-                </div>
-            </li>
-        `
+  let geo_type = null
+  let features = []
+  map.eachLayer(function (layer) {
+    if (layer.feature) {
+      features.push(layer.feature)
+    }
   })
+
+  if (fields_feature) {
+    features = fields_feature
+  }
+
+  features.forEach(feature => {
+    geo_type = feature.geometry.type
+    prop = feature.properties
+
+    if (geo_type == "MultiPolygon") {
+      fields__list.innerHTML += `
+              <li class="fields__panel-item" onclick="getBoundsField(${prop.id})">
+                  <div class="fields__panel-item__left">
+                      <img src="../static/images/azure-satellite.png" alt="field 1" width="50" height="50">
+                      <div class="fields__panel-item__info">
+                          <h5 class="fields__panel-field__name">${prop.place_name}</h5>
+                          <div class="d-flex">
+                              <h4 class="fields__panel-crop__name">${getCropName(prop.crop_code)}</h4>
+                              <h4 class="fields__panel-field__area">${prop.place_area} ga</h4>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="fields__panel-item__right">
+                      <button class="fields__panel-menu__btn">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                              xmlns="http://www.w3.org/2000/svg">
+                              <path
+                                  d="M12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z"
+                                  fill="black" />
+                              <path
+                                  d="M5 14C6.10457 14 7 13.1046 7 12C7 10.8954 6.10457 10 5 10C3.89543 10 3 10.8954 3 12C3 13.1046 3.89543 14 5 14Z"
+                                  fill="black" />
+                              <path
+                                  d="M19 14C20.1046 14 21 13.1046 21 12C21 10.8954 20.1046 10 19 10C17.8954 10 17 10.8954 17 12C17 13.1046 17.8954 14 19 14Z"
+                                  fill="black" />
+                          </svg>
+                      </button>
+  
+                  </div>
+              </li>
+          `
+    } else if (geo_type == "LineString") {
+      fields__list.innerHTML += `
+              <li class="fields__panel-item" onclick="getBoundsField(${prop.id})">
+                  <div class="fields__panel-item__left">
+                      <img src="../static/images/azure-satellite.png" alt="field 1" width="50" height="50">
+                      <div class="fields__panel-item__info">
+                          <h5 class="fields__panel-field__name">${prop.place_name}</h5>
+                          <div class="d-flex">
+                              <h4 class="fields__panel-crop__name"> </h4>
+                              <h4 class="fields__panel-field__area">${prop.place_length} km</h4>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="fields__panel-item__right">
+                      <button class="fields__panel-menu__btn">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                              xmlns="http://www.w3.org/2000/svg">
+                              <path
+                                  d="M12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z"
+                                  fill="black" />
+                              <path
+                                  d="M5 14C6.10457 14 7 13.1046 7 12C7 10.8954 6.10457 10 5 10C3.89543 10 3 10.8954 3 12C3 13.1046 3.89543 14 5 14Z"
+                                  fill="black" />
+                              <path
+                                  d="M19 14C20.1046 14 21 13.1046 21 12C21 10.8954 20.1046 10 19 10C17.8954 10 17 10.8954 17 12C17 13.1046 17.8954 14 19 14Z"
+                                  fill="black" />
+                          </svg>
+                      </button>
+  
+                  </div>
+              </li>
+          `
+    }
+
+  })
+
+
+
+
 }
+
+
 
 
 // =============== MAKE AREA TOOLTIP FOR FIELD ================ //
@@ -153,15 +228,15 @@ function area_tool_tip(layer, area) {
 
 
 // =============== HIDE AREA TOOLTIP WHEN MAP SCROOLED ================ //
-function hide_area_tooltip(zoom) {
-  polygons_layer.eachLayer(function (layer) {
-    if (zoom <= 15) {
-      layer.closeTooltip()
-    } else {
-      layer.openTooltip()
-    }
-  })
-}
+// function hide_area_tooltip(zoom) {
+//   polygons_layer.eachLayer(function (layer) {
+//     if (zoom <= 15) {
+//       layer.closeTooltip()
+//     } else {
+//       layer.openTooltip()
+//     }
+//   })
+// }
 
 
 
@@ -235,30 +310,31 @@ function FeatureLayer(layer, shape_type) {
 
 
 // =============== MAKE POLYGON ================ //
-function Polygon(layer, options) {
+function Polygon(layer) {
   this.field_coords = [];
   this.finalPoint = null;
   this.latlngs = null
-  this.len = layer._latlngs[0].length
+  this.len = layer.target.feature.geometry.coordinates.length
   this.polygon = null
   // Options
-  this.title = options.title
-  this.fillColor = options.fillColor
-  this.fillOpacity = options.fillOpacity
-  this.weight = options.weight
-  this.color = options.color
-  this.opacity = options.opacity
-  this.fill = options.fill
-  this.dashArray = options.dashArray
-  this.polygon = options.polygon
+  // this.title = options.title
+  // this.fillColor = options.fillColor
+  // this.fillOpacity = options.fillOpacity
+  // this.weight = options.weight
+  // this.color = options.color
+  // this.opacity = options.opacity
+  // this.fill = options.fill
+  // this.dashArray = options.dashArray
+  // this.polygon = options.polygon
   this.polygon_geojson = null
 
   if (this.len == 1) {
-    this.latlngs = layer._latlngs[0][0]
+    this.latlngs = layer.target.feature.geometry.coordinates[0]
   } else {
     this.latlngs = layer._latlngs[0]
   }
 
+  console.log(this.latlngs);
   this.finalPoint = [this.latlngs[0]["lat"], this.latlngs[0]["lng"]];
   this.latlngs.forEach((latlng) => {
     this.field_coords.push([latlng.lat, latlng.lng]);
@@ -333,3 +409,8 @@ function line_length_calculator(layer) {
 function leaflet_measure() {
 
 }
+
+
+// function get_full_coor(e){
+//   let coor
+// }

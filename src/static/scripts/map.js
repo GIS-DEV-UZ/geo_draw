@@ -98,9 +98,9 @@ L.control.scale({
 
 
 // =============== GET ZOOM WHEN MAP SCROLLED ================ //
-L.DomEvent.on(map.getContainer(), 'wheel', function () {
-    hide_area_tooltip(map.getZoom())
-});
+// L.DomEvent.on(map.getContainer(), 'wheel', function () {
+//     hide_area_tooltip(map.getZoom())
+// });
 
 
 map.pm.setGlobalOptions({ snappable: true }); 

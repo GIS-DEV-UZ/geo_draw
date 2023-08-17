@@ -1,8 +1,8 @@
 // =================== VARIABLES ================== //
 
-let fields__properties = []
-let checked__field__props = []
-
+let fields_feature = []
+let checked__field__feature = []
+let polygons_layer = null
 
 // =================== GET HTML ELEMENTS ================== //
 let crop_checkBox = document.querySelectorAll('.field__crop-checkbox');
@@ -10,96 +10,78 @@ let crop_checkBox = document.querySelectorAll('.field__crop-checkbox');
 // =================== GET USER FIELDS ================== //
 function get_user_fields() {
     fetch("/get/geometries")
-    .then(res => res.json())
-    .then(res => {
-        if (res) {
-            addToMapDrawnLayers(res)
-            res.features.forEach(feature => {
-                fields__properties.push(feature.properties)
-            })
-            make_fields_list(fields__properties)
-        } else {
-            console.log('Polygonlar yo`q');
-        }
-    })
+        .then(res => res.json())
+        .then(res => {
 
+            let polygons_layer = L.geoJSON(res, {
+                style: style,
+                onEachFeature: onEachFeature,
+                snapIgnore: false,
+            }).addTo(map)
+            map.fitBounds(polygons_layer.getBounds())
 
-    // fetch("/api/polygon/get")
-    //     .then(res => res.json())
-    //     .then(res => {
-    //         if (res) {
-    //             addToMapDrawnLayers(res)
-    //             res.features.forEach(feature => {
-    //                 fields__properties.push(feature.properties)
-    //             })
-    //             make_fields_list(fields__properties)
-    //         } else {
-    //             console.log('Polygonlar yo`q');
-    //         }
-    //     })
+            make_fields_list()
+        })
 }
 get_user_fields()
 
 
 
-var polygons_layer = new L.FeatureGroup({
-    pmIgnore: true,
-    snapIgnore: false
-});
+// =================== GET FIELD BOUNDS AND SHOW POPUP IN MAP  ================== //
+function clickEachFeature(e) {
+    let field_id = e.target.options.properties.id
+    boundToPolygon(field_id)
+}
 
+// ///////////////////////////////////////////////////////////////////////
 
-function addToMapDrawnLayers(featureGroup) {
-    featureGroup.features.forEach(feature => {
-        
-        if(feature.geometry.type == "MultiPolygon"){
-            let coordinates = feature.geometry.coordinates
-            coordinates[0][0].forEach(coor => {
-                coor.reverse()
-            })
-            var polygon = L.polygon(coordinates, {
-                properties: {...feature.properties, pmIgnore: true, snapIgnore: false},
-                color: 'red',
-                type: 'Feature'
-            }).addTo(map);
-            console.log(polygon);
-            polygon.on({
-                // mouseover: highlightFeature,
-                // mouseout: resetHighlight,
-                click: clickEachFeature
-            });
-            polygons_layer.addLayer(polygon)
-            let polygon_area = polygon.options.properties.place_area
-            area_tool_tip(polygon, polygon_area)
-        } else if(feature.geometry.type == "LineString"){
-            let coordinates = feature.geometry.coordinates
-            coordinates.forEach(coor => {
-                coor.reverse()
-            })
-            var line = L.polyline(coordinates, {
-                properties: feature.properties,
-                color: '#fcc419',
-                type: 'Feature'
-            }).addTo(map);
-            line.on({
-                // mouseover: highlightFeature,
-                // mouseout: resetHighlight,
-                click:boundToLine
-            });
-            polygons_layer.addLayer(line)
-        }
-    })
-    map.fitBounds(polygons_layer.getBounds())
+function style(feature) {
+    return {
+        fillColor: feature.geometry.type == "LineString" ? '#ffd43b' : '#20c997',
+        weight: feature.geometry.type == "LineString" ? '4' : '2',
+        opacity: 1,
+        color: feature.geometry.type == "LineString" ? '#ffd43b' : 'white',
+        dashArray: feature.geometry.type == "LineString" ? 'none' : '3',
+        fillOpacity: feature.geometry.type == "LineString" ? '1' : '0.4'
+    };
 }
 
 
+function onEachFeature(feature, layer) {
+    layer.on({
+        // mouseover: highlightFeature,
+        // mouseout: resetHighlight,
+        click: zoomToFeature
+    });
+    makePolygonPopup(layer, feature.properties)
+    fields_feature.push(feature)
+}
+
+function zoomToFeature(e) {
+    map.fitBounds(e.target.getBounds());
+}
+
+
+// =================== GET FIELD BOUNDS IN FIELD LIST ================== //
+function getBoundsField(field_id) {
+    map.eachLayer(function (layer) {
+        if (layer.feature) {
+            if (layer.feature.properties.id == field_id) {
+                map.fitBounds(layer.getBounds())
+                makePolygonPopup(layer, layer.feature.properties)
+            }
+        }
+    })
+}
+
 // =================== SEARCH BY FIELD NAME ================== //
 function searchFieldName(e) {
-    if (checked__field__props.length != 0) {
-        let one_field_prop = checked__field__props.filter(prop => prop.place_name.toLowerCase().includes(e))
-        make_fields_list(one_field_prop)
+    if (checked__field__feature.length != 0) {
+        let one_field_feature = checked__field__feature.filter(feature => feature.properties.place_name.toLowerCase().includes(e))
+        make_fields_list(one_field_feature)
     } else if (e.length > 0) {
-        let one_field_prop = fields__properties.filter(prop => prop.place_name.toLowerCase().includes(e))
-        make_fields_list(one_field_prop)
+        let one_field_feature = fields_feature.filter(feature => feature.properties.place_name.toLowerCase().includes(e))
+        make_fields_list(one_field_feature)
     } else if (e.length == 0) {
         searchByCropName()
     }
@@ -109,32 +91,11 @@ function searchFieldName(e) {
 
 // =================== SEARCH BY CROP NAME ================== //
 function searchByCropName() {
-    let checked__field__props = []
+    let checked__field__feature = []
     crop_checkBox.forEach((checkbox) => {
         if (checkbox.checked) {
-            checked__field__props.push(...(fields__properties.filter(prop => prop.crop_code == checkbox.value)))
+            checked__field__feature.push(...(fields_feature.filter(feature => feature.properties.crop_code == checkbox.value)))
         }
-
     });
-    make_fields_list(checked__field__props)
-}
-
-
-
-// =================== GET FIELD BOUNDS IN FIELD LIST ================== //
-function getBoundsField(field_id) {
-    polygons_layer.eachLayer(function (layer) {
-        if (layer.options.type == 'Feature') {
-            if (layer.options.properties.id == field_id) {
-                map.fitBounds(layer.getBounds())
-            }
-        }
-    })
-}
-
-
-// =================== GET FIELD BOUNDS AND SHOW POPUP IN MAP  ================== //
-function clickEachFeature(e){
-    let field_id = e.target.options.properties.id
-    boundToPolygon(field_id)
+    make_fields_list(checked__field__feature)
 }
