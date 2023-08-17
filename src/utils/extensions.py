@@ -24,8 +24,10 @@ def register_blueprints(app):
     from src.routes.auth import auth_route
     from src.routes.dashboard import dashboard_route 
     from src.routes.polygon import polygon_route 
+    from src.routes.line import line_route
 
     app.register_blueprint(base_route)
     app.register_blueprint(auth_route)
     app.register_blueprint(dashboard_route)
     app.register_blueprint(polygon_route)
+    app.register_blueprint(line_route)

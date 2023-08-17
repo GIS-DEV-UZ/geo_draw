@@ -47,6 +47,19 @@ function boundToPolygon(poly_id) {
   });
 }
 
+
+// Bound to Line when clicked
+function boundToLine(e) {
+  let line_id = e.target.options.properties.id
+  map.eachLayer(function (layer) {
+    if (layer.options.type == 'Feature') {
+      if (layer.options.properties.id == line_id) {
+        map.fitBounds(layer.getBounds());
+      }
+    }
+  });
+}
+
 // Make Polygon Popup when clicked
 function makePolygonPopup(layer, properties) {
   var table = document.createElement("table");
@@ -155,7 +168,6 @@ function hide_area_tooltip(zoom) {
 // =============== MAKE FEATURELAYER ================ //
 function createFeatureLayer(layer) {
   let coordinates = [];
-  let field_area = null
   let finalPoint = null;
   let latlngs = layer._latlngs[0]
 
@@ -167,27 +179,26 @@ function createFeatureLayer(layer) {
   featureLayer["features"][0]["geometry"]["coordinates"][0] = [
     ...coordinates,
   ];
+
+  console.log(featureLayer);
 }
 
 
-function FeatureLayer(layer) {
+function FeatureLayer(layer, shape_type) {
   this.field_coords = [];
   this.finalPoint = null;
   this.latlngs = null
   this.len = layer._latlngs[0].length
   this.featureLayer = {
-    type: "FeatureCollection",
-    features: [{
-      type: "Feature",
-      properties: {},
-      geometry: {
-        coordinates: [],
-        type: "Polygon",
-      },
-    }, ],
-  };
-
+    type: "Feature",
+    properties: {},
+    geometry: {
+      coordinates: [],
+      type: "",
+    },
+  }
   this.polygon = null
+  this.line = null
 
   if (this.len == 1) {
     this.latlngs = layer._latlngs[0][0]
@@ -195,15 +206,27 @@ function FeatureLayer(layer) {
     this.latlngs = layer._latlngs[0]
   }
 
-  this.finalPoint = [this.latlngs[0]["lng"], this.latlngs[0]["lat"]];
-  this.latlngs.forEach((latlng) => {
-    this.field_coords.push([latlng.lng, latlng.lat]);
-  });
-  this.field_coords.push(this.finalPoint)
 
-  this.featureLayer["features"][0]["geometry"]["coordinates"][0] = [
-    ...this.field_coords,
-  ];
+  if (shape_type == 'Polygon') {
+    this.featureLayer.geometry.type = "Polygon"
+    this.latlngs.forEach((latlng) => {
+      this.field_coords.push([latlng.lng, latlng.lat]);
+    });
+    this.finalPoint = [this.latlngs[0]["lng"], this.latlngs[0]["lat"]];
+    this.field_coords.push(this.finalPoint)
+    this.featureLayer["geometry"]["coordinates"][0] = [
+      ...this.field_coords,
+    ];
+
+  } else if (shape_type == "Line") {
+    this.featureLayer.geometry.type = "LineString"
+    layer._latlngs.forEach((latlng) => {
+      this.field_coords.push([latlng.lng, latlng.lat]);
+    });
+    this.featureLayer["geometry"]["coordinates"] = [
+      ...this.field_coords,
+    ];
+  }
 
   return this.featureLayer
 
@@ -254,7 +277,7 @@ function Polygon(layer, options) {
     fill: this.fill
   })
 
-  this.polygon_geojson = this.polygon.toGeoJSON()
+  // this.polygon_geojson = this.polygon.toGeoJSON()
 
   return this.polygon
 }
@@ -265,11 +288,11 @@ function Polygon(layer, options) {
 function polygon_area_calculator(e, edit_type) {
   var field_area = null
   var type = e.shape,
-  layer = e.layer;
+    layer = e.layer;
   if (edit_type == 'cut') {
-      field_area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]) / 10000;
+    field_area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]) / 10000;
   }
-  if(layer){
+  if (layer) {
     if (type === 'Polygon') {
       // drawn_layer.addLayer(layer);
       field_area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]) / 10000;
@@ -279,4 +302,34 @@ function polygon_area_calculator(e, edit_type) {
   }
   // console.log('leaflet : ', field_area);
   return field_area.toFixed(2)
+}
+
+
+// =================== CALCULATE POLYGON LENGTH ================== //
+function polygon_length_calculator(layer) {
+  var coords = layer.getLatLngs();
+  var length = 0;
+  for (var i = 0; i < coords[0].length - 1; i++) {
+    length += coords[0][i].distanceTo(coords[0][i + 1]);
+  }
+  // console.log(length.toFixed(3));
+}
+
+
+// =================== CALCULATE LINE LENGTH ================== //
+function line_length_calculator(layer) {
+  let coords = layer.getLatLngs();
+  // console.log(coords);
+  var length = 0;
+  for (var i = 0; i < coords.length - 1; i++) {
+    length += map.distance(coords[i], coords[i + 1])
+  }
+  length = (length / 100).toFixed(2)
+  console.log(length);
+  return length
+}
+
+
+function leaflet_measure() {
+
 }

@@ -10,7 +10,7 @@ matplotlib.use('Agg')
 from matplotlib.patches import Polygon as MT_Polygon
 from src.utils.extensions import db
 from sqlalchemy import text
-from shapely.geometry import shape
+from shapely.geometry import shape, Polygon as Poly
 
 polygon_route = Blueprint('polygon_route', __name__, url_prefix='/api/polygon')
 
@@ -93,10 +93,12 @@ def polygon_draw():
     if request.method == 'POST':
         req_data = request.get_json()
         geometry = req_data['geometry']
-        
+        print(geometry)
         if geometry['type'] == 'Polygon':
             geometry['coordinates'] = [geometry['coordinates']]
             geometry['type'] = 'MultiPolygon'
+        elif geometry['type'] == 'LineString':
+            pass
         
         current_time = datetime.datetime.now()
         image_id = f"{current_time.minute}{current_time.second}{current_time.microsecond}"
@@ -112,6 +114,19 @@ def get_polygon_area():
                         "type": "MultiPolygon",
                         "coordinates": [coordinates]
                      }))) ).first()[0] * 1000000
+        
+        # field_perimeter = db.session.query(functions.ST_Perimeter(functions.ST_GeomFromGeoJSON(json.dumps({
+        #                 "type": "MultiPolygon",
+        #                 "coordinates": [coordinates]
+        #              }))) ).first()[0] * 100000
+        polygon = Poly(coordinates[0])
+        wkt_polygon = f"POLYGON ({', '.join([f'{lon} {lat}' for lon, lat in coordinates[0]])})"
+        geo_polygon  = functions.ST_GeomFromText(wkt_polygon)
+        # field_perimeter = functions.ST_Perimeter(geo_polygon)
+        print(polygon)
+        print(wkt_polygon)
+        print(geo_polygon)
+        print(functions.ST_AsText(polygon))
         return jsonify(field_area)
     
 
@@ -141,3 +156,17 @@ def delete_polygon(field_id):
     db.session.delete(deletable_polygon)
     db.session.commit()
     return jsonify('Polygon deleted')
+
+
+
+# @polygon_route.route('/perimeter')
+
+# @polygon_route.route('/perimeter', methods=['GET', 'POST'])
+# def get_polygon_area():
+#     if request.method == 'POST':
+#         coordinates = request.get_json()
+#         field_perimeter = db.session.query(functions.ST_Perimeter(functions.ST_GeomFromGeoJSON(json.dumps({
+#                         "type": "MultiPolygon",
+#                         "coordinates": [coordinates]
+#                      }))) ).first()[0] * 1000000
+#         return jsonify(field_perimeter)

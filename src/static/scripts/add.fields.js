@@ -14,18 +14,21 @@ const elDashboardMain = document.querySelector('.crop__dashboard-main')
 
 
 // =================== CREATE FEATURE GROUP FOR LAST DRAWN LAYER ================== //
-let last_drawn_layer = new L.FeatureGroup();
+let last_drawn_layer = new L.FeatureGroup({
+    snapIgnore: false
+});
 let field_area = null
+let line_length = null
 
 
 // =================== CONTROL OPTIONS ================== //
 let controls = {
     position: 'topright',
+    drawPolyline: true,
     drawCircleMarker: false,
     rotateMode: false,
     drawMarker: false,
     drawCircleMarker: false,
-    drawPolyline: false,
     drawRectangle: false,
     drawCircle: false,
     drawText: false,
@@ -55,7 +58,9 @@ elAddFieldBtn.addEventListener('click', () => {
     setTimeout(function () {
         window.dispatchEvent(new Event("resize"));
     }, 200);
-    map.pm.enableDraw("Polygon")
+    map.pm.enableDraw("Polygon", {
+        snappable: true
+    })
     map.pm.addControls(controls)
     polygons_layer.eachLayer(layer => {
         // This has no effect
@@ -68,36 +73,51 @@ elAddFieldBtn.addEventListener('click', () => {
 
 // =============== GET FIELD GEOMETRIES ================ //
 let target_layer = null
+let shape_type = null
 map.on("pm:create", (e) => {
+    shape_type = e.shape
     elFieldAddPermBtn.style.display = 'block'
     elFieldDeleteBtn.style.display = 'block'
 
     target_layer = e.layer
 
-    polygon_area_calculator(e, 'create')
-    areaInHectares(target_layer)
-    console.log(featureLayer);
+    if (shape_type == "Line") {
+        line_length = line_length_calculator(target_layer)
+        last_drawn_layer.addLayer(target_layer)
+        featureLayer = new FeatureLayer(target_layer, shape_type)
+        console.log(featureLayer);
 
-    createFeatureLayer(target_layer)
+        console.log(target_layer.toGeoJSON());
+    } else if (shape_type == "Polygon") {
+        polygon_length_calculator(target_layer)
+        let abc = new FeatureLayer(target_layer, shape_type)
+        console.log(abc);
+        polygon_area_calculator(e, 'create')
+        areaInHectares(target_layer)
 
-    last_drawn_layer.addLayer(target_layer)
-    
-    async function areaFetcher() {
-        const response = await fetch("/api/polygon/area", {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(featureLayer["features"][0]["geometry"]["coordinates"]),
-        });
-        field_area = await response.json();
-        console.log('pgadmin : ', field_area);
-        field_area = field_area.toFixed(2)
-        area_tool_tip(target_layer, field_area)
+        createFeatureLayer(target_layer)
+
+        last_drawn_layer.addLayer(target_layer)
+
+        async function areaFetcher() {
+            const response = await fetch("/api/polygon/area", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(featureLayer["features"][0]["geometry"]["coordinates"]),
+            });
+            field_area = await response.json();
+            console.log('pgadmin : ', field_area);
+            field_area = field_area.toFixed(2)
+            area_tool_tip(target_layer, field_area)
+        }
+
+        areaFetcher()
     }
 
-    areaFetcher()
+
 
 });
 
@@ -138,13 +158,22 @@ map.on("pm:remove", (e) => {
 // =============== DRAW FIELD ================ //
 elFieldDrawBtn.addEventListener('click', () => {
     elFieldDrawBtn.style.display = 'none'
-    map.pm.enableDraw("Polygon")
+    map.pm.enableDraw("Polygon", {
+        snappable: true
+    })
 })
 
 
 // =============== OPEN FORM FIELD ================ //
 if (elFieldAddPermBtn) {
     elFieldAddPermBtn.addEventListener('click', () => {
+        if (shape_type == "Line") {
+            document.querySelector('.line-control').style.display = 'block'
+            document.querySelector('.line-length').value = `${line_length} km`
+
+        }else if (shape_type == "Polygon") {
+            document.querySelector('.polygon-control').style.display = 'block'
+        }
         elFieldAddPermBtn.style.display = 'none'
         elFieldDeleteBtn.style.display = 'none'
         elFieldAddFormBox.classList.add('field__add-leftSide-show')
@@ -157,31 +186,42 @@ if (elFieldAddPermBtn) {
             });
         }, 100);
 
-        let img_data = {
-            geometry: featureLayer["features"][0]["geometry"]
-        }
-        let image_id = null
-        async function imageFetcher() {
-            const response = await fetch("/api/polygon/draw", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(img_data),
-            });
-            const image_id = await response.json();
-            elFieldFormImageWrapper.innerHTML = `
+        let img_data = null
+
+        if (shape_type == 'Polygon') {
+            img_data = {
+                geometry: featureLayer["features"][0]["geometry"]
+            }
+
+            let image_id = null
+            elFieldFormImageWrapper.innerHTML = ''
+            async function imageFetcher() {
+                const response = await fetch("/api/polygon/draw", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(img_data),
+                });
+                const image_id = await response.json();
+                elFieldFormImageWrapper.innerHTML = `
                 <img class="field__image" src="${polyImageUrl.replace('-1', image_id.toString())}" alt="field image" width="350px" height="150px">
                 <span class="mt-2">${field_area} ga</span>
             `
+            }
+
+            setTimeout(function () {
+                window.dispatchEvent(new Event("resize"));
+            }, 200);
+
+            imageFetcher()
+        } else if (shape_type == 'Line') {
+            img_data = {
+                geometry: featureLayer["geometry"]
+            }
         }
-
-        setTimeout(function () {
-            window.dispatchEvent(new Event("resize"));
-        }, 200);
-
-        imageFetcher()
+        console.log(img_data);
     })
 }
 
@@ -204,24 +244,44 @@ elFieldFormCancelBtn.addEventListener('click', () => {
 elFieldForm.addEventListener("submit", async (e) => {
     // e.preventDefault();
     let formData = new FormData(elFieldForm);
-    let data = {
-        field_name: formData.get("field_name"),
-        crop_code: crop_list.filter(crop => crop.val.toString() == formData.get("crop_name"))[0]['code'],
-        field_area: field_area,
-        geometry: featureLayer["features"][0]["geometry"]
+
+    if (shape_type == "Line") {
+        let data = {
+            field_name: formData.get("field_name"),
+            line_length : line_length,
+            geometry: featureLayer["geometry"]
+        }
+    
+        let response = await fetch("/api/line/save", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+    
+        let result = await response.json();
+    } else if (shape_type == "Polygon"){
+        let data = {
+            field_name: formData.get("field_name"),
+            crop_code: crop_list.filter(crop => crop.val.toString() == formData.get("crop_name"))[0]['code'],
+            field_area: field_area,
+            geometry: featureLayer["features"][0]["geometry"]
+        }
+    
+        let response = await fetch("/api/polygon/save", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+    
+        let result = await response.json();
     }
-
-    let response = await fetch("/api/polygon/save", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    });
-
-    let result = await response.json();
-
+    
     elFieldForm.reset()
     elFieldAddFormBox.classList.remove('field__add-leftSide-show')
 })

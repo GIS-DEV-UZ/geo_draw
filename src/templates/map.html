@@ -15,6 +15,11 @@
 <!-- Turf js -->
 <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
 
+<!-- Leaflet-Measure -->
+<script src="https://cdn.jsdelivr.net/npm/leaflet-measure@3.1.0/dist/leaflet-measure.ru.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/leaflet-measure@3.1.0/dist/leaflet-measure.min.css" rel="stylesheet">
+<!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles/leaflet-measure.css') }}"> -->
+
 <link rel="stylesheet" href="{{ url_for('static', filename='styles/map.css') }}">
 {% endblock %}
 
@@ -80,7 +85,7 @@
                 <label for="fieldName" class="form-label">Field Name</label>
                 <input type="text" class="form-control" id="fieldName" name="field_name" required>
             </div>
-            <div class="mb-3">
+            <div class="mb-3 polygon-control">
                 <select class="form-select" name="crop_name" aria-label="Default select example" required>
                     <option selected disabled>Crop name</option>
                     <option value="1">Paxta</option>
@@ -88,6 +93,10 @@
                     <option value="3">No`xat</option>
                     <option value="4">Piyoz</option>
                 </select>
+            </div>
+            <div class="mb-3 line-control">
+                <label for="lineLength" class="form-label">Line length</label>
+                <input class="form-control line-length" id="lineLength" name="line_length" type="text" placeholder="Line length" disabled value="0">
             </div>
             <div class="field__actions mb-3 d-flex flex-column">
                 <button type="submit" class="field__form-add btn btn-primary mb-2">Save</button>
@@ -130,6 +139,7 @@
 <script src="{{ url_for('static', filename='scripts/map.utils.js') }}"></script>
 <script src="{{ url_for('static', filename='scripts/control.js') }}"></script>
 <script src="{{ url_for('static', filename='scripts/map.js') }}"></script>
+<!-- <script src="{{ url_for('static', filename='scripts/leaflet-measure.js') }}"></script> -->
 <script src="{{ url_for('static', filename='scripts/show.fields.js') }}"></script>
 <script>
     let polyImageUrl = "{{ url_for('polygon_route.get_polygon_image', poly_id=-1) }}"

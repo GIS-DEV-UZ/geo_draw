@@ -17,20 +17,22 @@ var osmUrl = "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
 
 let map = new L.Map("map", {
         center: new L.LatLng(41.311081, 69.240562),
-        zoom: 13
+        zoom: 13,
+        // measureControl: true
     }),
     drawnItems = new L.FeatureGroup().addTo(map);
 
 var featureGroup = L.featureGroup().addTo(map);
 
 let tileLayers = {
-    'mapbox': mapbox,
-    'osm': osm,
+    // 'mapbox': mapbox,
+    // 'osm': osm,
     'google': google.addTo(map),
 }
 
 
 let layerControl = L.control.layers(tileLayers).addTo(map)
+// L.control.measure().addTo(map)
 
 // CHANGE LAYER
 var radio_layers = document.getElementsByName('layers');
@@ -47,7 +49,6 @@ radio_layers.forEach(radio_layer => {
                         }
                     }
                     L.control.layers({}, {
-                        // mapbox:mapbox.addTo(map),
                         [tileLayers[layer_name]]: tileLayers[layer_name].addTo(map)
                     }, {
                         collapsed: false
@@ -66,7 +67,6 @@ const elControlLayerToggle = document.querySelector('.leaflet-control-layers-tog
 
 // elControlLayers.style.display = 'none'
 elControlLayerToggle.addEventListener('mouseover', ()=>{
-    console.log(elControlLayerToggle.parentElement);
     elControlLayerToggle.parentElement.classList.remove('leaflet-control-layers-expanded')
 })
 
@@ -101,3 +101,6 @@ L.control.scale({
 L.DomEvent.on(map.getContainer(), 'wheel', function () {
     hide_area_tooltip(map.getZoom())
 });
+
+
+map.pm.setGlobalOptions({ snappable: true }); 
