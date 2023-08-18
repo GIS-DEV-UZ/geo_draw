@@ -12,26 +12,24 @@ function get_user_fields() {
     fetch("/get/geometries")
         .then(res => res.json())
         .then(res => {
-
-            polygons_layer = L.geoJSON(res, {
-                style: style,
-                onEachFeature: onEachFeature,
-                snapIgnore: false,
-            }).addTo(map)
-            map.fitBounds(polygons_layer.getBounds())
-
-            make_fields_list()
+            let data = res.data
+            if(data){
+                polygons_layer = L.geoJSON(data, {
+                    style: style,
+                    onEachFeature: onEachFeature,
+                    snapIgnore: false,
+                    interactive:false
+                }).addTo(map)
+                map.fitBounds(polygons_layer.getBounds())
+    
+                make_fields_list()
+            } else {
+                console.log('Ma`lumot yo`q');
+            }
         })
 }
 get_user_fields()
 
-
-
-// =================== GET FIELD BOUNDS AND SHOW POPUP IN MAP  ================== //
-function clickEachFeature(e) {
-    let field_id = e.target.options.properties.id
-    boundToPolygon(field_id)
-}
 
 // ///////////////////////////////////////////////////////////////////////
 

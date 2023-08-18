@@ -82,6 +82,10 @@ function makePolygonPopup(layer, properties) {
           <td>${properties.place_area} ga</td>
         </tr>
         <tr>
+          <th>place_length</th>
+          <td>${properties.place_length} km</td>
+        </tr>
+        <tr>
           <th> <button class="btn btn-danger" onClick="deletePolygon(${properties.id})">Delete</button> </th>
           <td> <button class="btn btn-secondary" onClick="editPolygon(${properties.id})">Edit</button> </td>
         </tr>

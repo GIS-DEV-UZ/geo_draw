@@ -25,10 +25,6 @@
     <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
     <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
 
-    <!-- Leaflet.TextPath kutubxonasi -->
-    <!-- <script src="https://unpkg.com/leaflet.textpath/leaflet.textpath.js"></script> -->
-    <script type="text/javascript" src="https://unpkg.com/leaflet-textpath@1.2.3/leaflet.textpath.js"></script>
-
     
 
     <!-- Turf js -->
@@ -128,7 +124,6 @@
     <script>
         let polyImageUrl = "{{ url_for('polygon_route.get_polygon_image', poly_id=-1) }}"
     </script>
-    <script src="{{ url_for('static', filename='scripts/field.js') }}"></script>
     <script>
         map.pm.addControls(controls);
         map.pm.enableDraw("Polygon")

@@ -1,5 +1,5 @@
 from json import loads
-from flask import Blueprint, request, redirect, url_for
+from flask import Blueprint, jsonify, request, redirect, url_for
 from src.views.base_controller import home_view
 from src.utils.extensions import oneid
 from pprint import pprint
@@ -49,28 +49,29 @@ def get_geometries():
             "type": "FeatureCollection",
             "features": [],
         }
-    polygons = db.session.query(Polygon.place_name, Polygon.crop_code, Polygon.place_area, functions.ST_AsGeoJSON(Polygon.geometry), Polygon.id).filter_by(user_id = current_user.id).all()
+    polygons = db.session.query(Polygon.place_name, Polygon.crop_code, Polygon.place_area, Polygon.place_length, functions.ST_AsGeoJSON(Polygon.geometry), Polygon.id).filter_by(user_id = current_user.id).all()
     lines = db.session.query(Line.place_name, Line.place_length, functions.ST_AsGeoJSON(Line.geometry), Line.id).filter_by(user_id = current_user.id).all()
-    # polygons = db.session.query(Polygon).filter_by(user_id=current_user.id).all()
-    # lines = db.session.query(Line).filter_by(user_id=current_user.id).all()
-    # print(lines)
+    print('polygons : ', polygons)
+    print('lines : ', lines)
+    print(polygons or lines)
     if polygons or lines:  
+        print('sdsadasdsa')
         if polygons:          
             for poly in polygons:
                 poly_obj = {
                     "type": "Feature",
                     "properties": {
-                        "id" : poly[4],
+                        "id" : poly[5],
                         "place_name" : poly[0],
                         "crop_code" : poly[1],
-                        "place_area" : poly[2]
+                        "place_area" : poly[2],
+                        "place_length" : poly[3]
                     },
-                    "geometry": loads(poly[3]),
+                    "geometry": loads(poly[4]),
                 }
                 featureLayer['features'].append(poly_obj)
         if lines:          
             for line in lines:
-                print(line)
                 line_obj = {
                     "type": "Feature",
                     "properties": {
@@ -83,6 +84,6 @@ def get_geometries():
                 featureLayer['features'].append(line_obj)
         
         
-        return featureLayer
+        return jsonify({'data' : featureLayer})
     else:
-        return False
+        return jsonify({'data' : False})

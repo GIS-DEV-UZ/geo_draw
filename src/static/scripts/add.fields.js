@@ -20,6 +20,7 @@ let last_drawn_layer = new L.FeatureGroup({
 });
 let field_area = null
 let line_length = null
+let polygon_length = null
 
 
 // =================== CONTROL OPTIONS ================== //
@@ -61,14 +62,19 @@ elAddFieldBtn.addEventListener('click', () => {
     }, 200);
     
     map.pm.addControls(controls)
-    polygons_layer.eachLayer(layer => {
+    map.eachLayer(layer => {
         // This has no effect
         // layer.pm.disable();
-        // But this has
-        layer._pmTempLayer = {};
-        layer.options.snapIgnore = false
+        
+        // But these two work
+        
+        // layer._pmTempLayer = {}; This code is disabling snappable to polygon
+
+        // USE THIS CODE 
+        delete layer.pm
     })
 })
+
 
 
 // =============== GET FIELD GEOMETRIES ================ //
@@ -80,8 +86,13 @@ map.on("pm:create", (e) => {
     elFieldDeleteBtn.style.display = 'block'
 
     target_layer = e.layer  
+    map.pm.enableDraw("Polygon", {
+        snappable: true,
+        snapDistance: 20,
+    })
+    map.pm.disableDraw();
     
-    
+        
 
     if (shape_type == "Line") {
         line_length = polyline_length_calculator(target_layer)
@@ -96,8 +107,8 @@ map.on("pm:create", (e) => {
 
         createFeatureLayer(target_layer)
 
-        let poly_line = polyline_length_calculator(target_layer)
-        console.log('poly_line : ', poly_line, 'km');
+        polygon_length = polyline_length_calculator(target_layer)
+        console.log('poly_line : ', polygon_length, 'km');
 
         last_drawn_layer.addLayer(target_layer)
 
@@ -128,6 +139,7 @@ map.on("pm:create", (e) => {
 map.on("pm:cut", (e) => {
     target_layer = e.layer
     last_drawn_layer.addLayer(target_layer)
+    polygon_length = polyline_length_calculator(target_layer)
     createFeatureLayer(e.layer)
 });
 
@@ -269,6 +281,7 @@ elFieldForm.addEventListener("submit", async (e) => {
             field_name: formData.get("field_name"),
             crop_code: crop_list.filter(crop => crop.val.toString() == formData.get("crop_name"))[0]['code'],
             field_area: field_area,
+            field_length: polygon_length,
             geometry: featureLayer["features"][0]["geometry"]
         }
     

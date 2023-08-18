@@ -43,16 +43,18 @@ def draw_polygon_coordinates(coordinates, file_name):
 def polygon_save():
     if request.method == 'POST':
         req_data = request.get_json()
+        print('req_data : ', req_data)
         place_name = req_data['field_name']
         crop_code = req_data['crop_code']
         place_area = req_data['field_area']
+        place_length = req_data['field_length']
         geometry = req_data['geometry']
         
         if geometry['type'] == 'Polygon':
             geometry['coordinates'] = [geometry['coordinates']]
             geometry['type'] = 'MultiPolygon'
             
-        polygon = Polygon.create(user_id=current_user.id, place_name=place_name, crop_code=crop_code, place_area=place_area, geometry=json.dumps(geometry))
+        polygon = Polygon.create(user_id=current_user.id, place_name=place_name, crop_code=crop_code, place_area=place_area, place_length=place_length, geometry=json.dumps(geometry))
         
         draw_polygon_coordinates(geometry['coordinates'][0][0], polygon.id)
         
@@ -61,7 +63,8 @@ def polygon_save():
             "polygon_id" : polygon.id,
             "place_name" : polygon.place_name,
             "crop_name" : polygon.crop_code,
-            "place_area" : polygon.place_area
+            "place_area" : polygon.place_area,
+            "place_length" : polygon.place_length
         }
     return jsonify(obj)
 
@@ -138,6 +141,7 @@ def update_polygon(field_id):
         field.place_name = req_data['field_name']
         field.crop_code = req_data['crop_code']
         field.place_area = req_data['field_area']        
+        field.place_length = req_data['field_length']        
         
         geometry = req_data['geometry']
         if geometry['type'] == 'Polygon':

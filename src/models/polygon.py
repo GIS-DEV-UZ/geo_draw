@@ -17,6 +17,7 @@ class Polygon(Base):
     place_name = db.Column(db.String(255))
     crop_code = db.Column(db.String(255))
     place_area = db.Column(db.Float())
+    place_length = db.Column(db.Float())
     geometry = db.Column(Geometry('MULTIPOLYGON', srid=4326))
     
     # def __repr__(self):
@@ -39,18 +40,19 @@ class Polygon(Base):
             "type": "FeatureCollection",
             "features": [],
         }
-        polygons = db.session.query(cls.place_name, cls.crop_code, cls.place_area, functions.ST_AsGeoJSON(cls.geometry), cls.id).filter_by(user_id = current_user.id).all()
+        polygons = db.session.query(cls.place_name, cls.crop_code, cls.place_area, cls.place_length, functions.ST_AsGeoJSON(cls.geometry), cls.id).filter_by(user_id = current_user.id).all()
         if polygons:            
             for poly in polygons:
                 poly_obj = {
                     "type": "Feature",
                     "properties": {
-                        "id" : poly[4],
+                        "id" : poly[5],
                         "place_name" : poly[0],
                         "crop_code" : poly[1],
                         "place_area" : poly[2],
+                        "place_length" : poly[3],
                     },
-                    "geometry": loads(poly[3]),
+                    "geometry": loads(poly[4]),
                 }
                 featureLayer['features'].append(poly_obj)
             

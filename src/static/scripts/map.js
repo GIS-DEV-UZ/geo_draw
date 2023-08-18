@@ -18,7 +18,6 @@ var osmUrl = "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
 let map = new L.Map("map", {
         center: new L.LatLng(41.311081, 69.240562),
         zoom: 13,
-        // measureControl: true
     }),
     drawnItems = new L.FeatureGroup().addTo(map);
 
@@ -32,7 +31,6 @@ let tileLayers = {
 
 
 let layerControl = L.control.layers(tileLayers).addTo(map)
-// L.control.measure().addTo(map)
 
 // CHANGE LAYER
 var radio_layers = document.getElementsByName('layers');
