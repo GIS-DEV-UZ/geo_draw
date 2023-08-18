@@ -18,7 +18,6 @@ function get_user_fields() {
                     style: style,
                     onEachFeature: onEachFeature,
                     snapIgnore: false,
-                    interactive:false
                 }).addTo(map)
                 map.fitBounds(polygons_layer.getBounds())
     

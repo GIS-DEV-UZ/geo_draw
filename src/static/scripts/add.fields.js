@@ -65,7 +65,7 @@ elAddFieldBtn.addEventListener('click', () => {
     map.eachLayer(layer => {
         // This has no effect
         // layer.pm.disable();
-        
+
         // But these two work
         
         // layer._pmTempLayer = {}; This code is disabling snappable to polygon
