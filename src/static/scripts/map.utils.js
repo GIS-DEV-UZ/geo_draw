@@ -214,7 +214,7 @@ function make_fields_list(fields_feature) {
 
 // =============== MAKE AREA TOOLTIP FOR FIELD ================ //
 function area_tool_tip(layer, area, measure_type) {
-  layer.bindTooltip("<div><b>" + area + measure_type +"</b></div>", {
+  layer.bindTooltip("<div><b>" + area + measure_type + "</b></div>", {
     direction: 'center',
     permanent: true,
     sticky: false,
@@ -381,36 +381,32 @@ function polygon_area_calculator(e, edit_type) {
 }
 
 
-// =================== CALCULATE POLYGON LENGTH ================== //
-function polygon_length_calculator(layer) {
-  var coords = layer.getLatLngs();
-  var length = 0;
-  for (var i = 0; i < coords[0].length - 1; i++) {
-    length += coords[0][i].distanceTo(coords[0][i + 1]);
-  }
-  // console.log(length.toFixed(3));
-}
-
 
 // =================== CALCULATE LINE LENGTH ================== //
-function line_length_calculator(layer) {
-  let coords = layer.getLatLngs();
-  // console.log(coords);
+function polyline_length_calculator(layer) {
+  let coords = null;
+  let coords_len = layer.getLatLngs().length
+  
+  if(coords_len > 1){
+    coords = layer.getLatLngs()
+  } else {
+    let finalPoint =null
+    let latlngs =null
+    let field_coords =[]
+
+    latlngs = layer._latlngs[0]
+    finalPoint = [latlngs[0]["lat"], latlngs[0]["lng"]];
+    latlngs.forEach((latlng) => {
+      field_coords.push([latlng.lat, latlng.lng]);
+    });
+    field_coords.push(finalPoint)
+    coords = field_coords
+  }
   var length = 0;
   for (var i = 0; i < coords.length - 1; i++) {
     length += map.distance(coords[i], coords[i + 1])
   }
-  length = (length / 100).toFixed(2)
-  console.log(length);
+  length = (length/1000).toFixed(2)
   return length
 }
 
-
-function leaflet_measure() {
-
-}
-
-
-// function get_full_coor(e){
-//   let coor
-// }

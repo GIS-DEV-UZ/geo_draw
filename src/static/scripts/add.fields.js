@@ -79,26 +79,25 @@ map.on("pm:create", (e) => {
     elFieldAddPermBtn.style.display = 'block'
     elFieldDeleteBtn.style.display = 'block'
 
-    target_layer = e.layer
-    map.pm.enableDraw("Polygon", {
-        snappable: true,
-        snapDistance: 20,
-    })
-    map.pm.disableDraw();
+    target_layer = e.layer  
+    
+    
 
     if (shape_type == "Line") {
-        line_length = line_length_calculator(target_layer)
+        line_length = polyline_length_calculator(target_layer)
         last_drawn_layer.addLayer(target_layer)
         featureLayer = new FeatureLayer(target_layer, shape_type)
+        console.log('////////////////');
         console.log(featureLayer);
-
-        console.log(target_layer.toGeoJSON());
+        console.log('line : ', line_length, 'km');
     } else if (shape_type == "Polygon") {
-        polygon_length_calculator(target_layer)
         polygon_area_calculator(e, 'create')
         areaInHectares(target_layer)
 
         createFeatureLayer(target_layer)
+
+        let poly_line = polyline_length_calculator(target_layer)
+        console.log('poly_line : ', poly_line, 'km');
 
         last_drawn_layer.addLayer(target_layer)
 
@@ -112,7 +111,7 @@ map.on("pm:create", (e) => {
                 body: JSON.stringify(featureLayer["features"][0]["geometry"]["coordinates"]),
             });
             field_area = await response.json();
-            console.log('pgadmin : ', field_area);
+            console.log('pgadmin : ', field_area, 'ga');
             field_area = field_area.toFixed(2)
             area_tool_tip(target_layer, field_area, 'ga')
         }
@@ -304,6 +303,6 @@ function areaInHectares(layer) {
     var polygon = turf.polygon([coordinates]);
     var area = turf.area(polygon);
     var inHectares = turf.convertArea(area, "meters", "hectares");
-    console.log('turf : ', inHectares);
+    console.log('turf : ', inHectares, 'ga');
     return inHectares;
 }
