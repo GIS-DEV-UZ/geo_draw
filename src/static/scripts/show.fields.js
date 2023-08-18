@@ -55,7 +55,7 @@ function onEachFeature(feature, layer) {
         area_tool_tip(layer, feature.properties.place_area, 'ga')
     } else {
         area_tool_tip(layer, feature.properties.place_length, 'km')
-        line_length_calculator(layer)
+        polyline_length_calculator(layer)
     }
 
     fields_feature.push(feature)
