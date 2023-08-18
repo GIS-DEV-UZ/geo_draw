@@ -114,7 +114,7 @@ map.on("pm:create", (e) => {
             field_area = await response.json();
             console.log('pgadmin : ', field_area);
             field_area = field_area.toFixed(2)
-            area_tool_tip(target_layer, field_area)
+            area_tool_tip(target_layer, field_area, 'ga')
         }
 
         areaFetcher()

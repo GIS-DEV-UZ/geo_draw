@@ -13,7 +13,7 @@ function get_user_fields() {
         .then(res => res.json())
         .then(res => {
 
-            let polygons_layer = L.geoJSON(res, {
+            polygons_layer = L.geoJSON(res, {
                 style: style,
                 onEachFeature: onEachFeature,
                 snapIgnore: false,
@@ -54,6 +54,11 @@ function onEachFeature(feature, layer) {
         click: zoomToFeature
     });
     makePolygonPopup(layer, feature.properties)
+    if(feature.properties.place_area){
+        area_tool_tip(layer, feature.properties.place_area, 'ga')
+    } else {
+        area_tool_tip(layer, feature.properties.place_length, 'km')
+    }
     fields_feature.push(feature)
 }
 

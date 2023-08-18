@@ -213,8 +213,8 @@ function make_fields_list(fields_feature) {
 
 
 // =============== MAKE AREA TOOLTIP FOR FIELD ================ //
-function area_tool_tip(layer, area) {
-  layer.bindTooltip("<div><b>" + area + " ga</b></div>", {
+function area_tool_tip(layer, area, measure_type) {
+  layer.bindTooltip("<div><b>" + area + measure_type +"</b></div>", {
     direction: 'center',
     permanent: true,
     sticky: false,
@@ -227,16 +227,16 @@ function area_tool_tip(layer, area) {
 }
 
 
-// =============== HIDE AREA TOOLTIP WHEN MAP SCROOLED ================ //
-// function hide_area_tooltip(zoom) {
-//   polygons_layer.eachLayer(function (layer) {
-//     if (zoom <= 15) {
-//       layer.closeTooltip()
-//     } else {
-//       layer.openTooltip()
-//     }
-//   })
-// }
+//=============== HIDE AREA TOOLTIP WHEN MAP SCROOLED ================ //
+function hide_area_tooltip(zoom) {
+  map.eachLayer(function (layer) {
+    if (zoom <= 15) {
+      layer.closeTooltip()
+    } else {
+      layer.openTooltip()
+    }
+  })
+}
 
 
 
