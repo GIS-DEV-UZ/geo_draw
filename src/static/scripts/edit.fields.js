@@ -27,16 +27,16 @@ function editPolygon(field_id) {
 
     get_user_fields(field_id)
 
-    map.eachLayer(function (layer) {        
-        let field_props = layer?.options?.properties
+    map.eachLayer(function (layer) {  
+        let field_props = layer?.feature?.properties
         let field_props_len = null
         if (field_props) {
-            field_props_len = Object.keys(layer?.options?.properties).length
+            field_props_len = Object.keys(layer?.feature?.properties).length
         }
         if (field_props_len) {
-            if (layer.options.properties.id == field_id) {
+            if (layer.feature.properties.id == field_id) {
                 original_field = layer
-                area_tool_tip(layer, polygon_area_calculator(layer, ''))
+                area_tool_tip(layer, polygon_area_calculator(layer, ''), 'ga')
                 map.pm.addControls({
                     position : 'topright',
                     drawMarker : false,
@@ -102,9 +102,9 @@ editable_layer.on("pm:edit", (e) => {
     elFieldEditBtn.style.display = 'none'
     last_edited_layer = e.layer
     editable_layer.addLayer(last_edited_layer)
-    polygon_feature_for_save = new FeatureLayer(last_edited_layer)
+    polygon_feature_for_save = new FeatureLayer(last_edited_layer, 'Polygon')
     polygon_layer_for_save = last_edited_layer
-    area_tool_tip(last_edited_layer, polygon_area_calculator(e, ''))
+    area_tool_tip(last_edited_layer, polygon_area_calculator(e, ''), 'ga')
 });
 
 
@@ -120,9 +120,9 @@ elFieldEditPermBtn.addEventListener('click', ()=>{
                 'paddingTopLeft': [elFieldAddFormBox_width + 10, 10]
             });
         }, 100);
-
+        
         let img_data = {
-            geometry: polygon_feature_for_save["features"][0]["geometry"]
+            geometry: polygon_feature_for_save["geometry"]
         }
 
         let image_id = null
@@ -162,9 +162,9 @@ elFieldEditFormCloseBtn.addEventListener('click', ()=>{
 map.on("pm:cut", (e) => {
     cutted_layer = e.layer
     editable_layer.addLayer(cutted_layer)
-    polygon_feature_for_save = new FeatureLayer(cutted_layer)
+    polygon_feature_for_save = new FeatureLayer(cutted_layer, 'Polygon')
     polygon_layer_for_save = cutted_layer
-    area_tool_tip(cutted_layer, polygon_area_calculator(e, 'cut'))
+    area_tool_tip(cutted_layer, polygon_area_calculator(e, 'cut'), 'ga')
 });
 
 elFieldCancel.addEventListener('click', ()=>{
@@ -196,7 +196,7 @@ elFieldCancel.addEventListener('click', ()=>{
     for(let [key, val] of Object.entries(original_field_border._eventParents)){
         e = original_field_border._eventParents[key].pm._layers[0]
     }
-    area_tool_tip(original_field_border, polygon_area_calculator(e, ''))
+    area_tool_tip(original_field_border, polygon_area_calculator(e, ''), 'ga')
     
     map.pm.disableGlobalEditMode();
 })

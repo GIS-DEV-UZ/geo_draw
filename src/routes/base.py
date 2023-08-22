@@ -43,7 +43,7 @@ def params():
         login_user(user)
         return redirect(url_for('dashboard_route.show_map'))
     
-@base_route.route("/get/geometries", methods=['GET'])
+@base_route.route("/get/geometries", methods=['GET', 'POST'])
 def get_geometries():
     featureLayer = {
             "type": "FeatureCollection",
@@ -80,6 +80,6 @@ def get_geometries():
                 featureLayer['features'].append(line_obj)
         
         
-        return jsonify({'data' : featureLayer})
+        return jsonify(featureLayer)
     else:
         return jsonify({'data' : False})

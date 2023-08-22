@@ -285,14 +285,13 @@ function FeatureLayer(layer, shape_type) {
     this.latlngs = layer._latlngs[0]
   }
 
-
   if (shape_type == 'Polygon') {
     this.featureLayer.geometry.type = "Polygon"
     this.latlngs.forEach((latlng) => {
       this.field_coords.push([latlng.lng, latlng.lat]);
     });
-    this.finalPoint = [this.latlngs[0]["lng"], this.latlngs[0]["lat"]];
-    this.field_coords.push(this.finalPoint)
+    // this.finalPoint = [this.latlngs[0]["lng"], this.latlngs[0]["lat"]];
+    // this.field_coords.push(this.finalPoint)
     this.featureLayer["geometry"]["coordinates"][0] = [
       ...this.field_coords,
     ];
@@ -314,36 +313,33 @@ function FeatureLayer(layer, shape_type) {
 
 
 // =============== MAKE POLYGON ================ //
-function Polygon(layer) {
+function Polygon(layer, options) {
   this.field_coords = [];
   this.finalPoint = null;
   this.latlngs = null
-  this.len = layer.target.feature.geometry.coordinates.length
+  this.len = layer.feature.geometry.coordinates.length
   this.polygon = null
   // Options
-  // this.title = options.title
-  // this.fillColor = options.fillColor
-  // this.fillOpacity = options.fillOpacity
-  // this.weight = options.weight
-  // this.color = options.color
-  // this.opacity = options.opacity
-  // this.fill = options.fill
-  // this.dashArray = options.dashArray
-  // this.polygon = options.polygon
+  this.title = options.title
+  this.fillColor = options.fillColor
+  this.fillOpacity = options.fillOpacity
+  this.weight = options.weight
+  this.color = options.color
+  this.opacity = options.opacity
+  this.fill = options.fill
+  this.dashArray = options.dashArray
+  this.polygon = options.polygon
   this.polygon_geojson = null
 
   if (this.len == 1) {
-    this.latlngs = layer.target.feature.geometry.coordinates[0]
+    this.latlngs = layer.feature.geometry.coordinates[0][0]
   } else {
     this.latlngs = layer._latlngs[0]
   }
 
-  console.log(this.latlngs);
-  this.finalPoint = [this.latlngs[0]["lat"], this.latlngs[0]["lng"]];
   this.latlngs.forEach((latlng) => {
-    this.field_coords.push([latlng.lat, latlng.lng]);
+    this.field_coords.push([latlng[1], latlng[0]]);
   });
-  this.field_coords.push(this.finalPoint)
 
   this.polygon = L.polygon(this.field_coords, {
     title: this.title,
@@ -357,7 +353,9 @@ function Polygon(layer) {
     fill: this.fill
   })
 
+
   // this.polygon_geojson = this.polygon.toGeoJSON()
+  // console.log(this.polygon_geojson);
 
   return this.polygon
 }

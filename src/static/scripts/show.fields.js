@@ -2,35 +2,42 @@
 
 let fields_feature = []
 let checked__field__feature = []
-let polygons_layer = null
 
 // =================== GET HTML ELEMENTS ================== //
 let crop_checkBox = document.querySelectorAll('.field__crop-checkbox');
 
 // =================== GET USER FIELDS ================== //
-function get_user_fields() {
-    fetch("/get/geometries")
-        .then(res => res.json())
-        .then(res => {
-            let data = res.data
-            if(data){
-                polygons_layer = L.geoJSON(data, {
-                    style: style,
-                    onEachFeature: onEachFeature,
-                    snapIgnore: false,
-                }).addTo(map)
-                map.fitBounds(polygons_layer.getBounds())
-    
-                make_fields_list()
-            } else {
-                console.log('Ma`lumot yo`q');
-            }
-        })
-}
-get_user_fields()
+let url = "/get/geometries"
+let url1 = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_geography_regions_polys.geojson"
+map.spin(true, {
+    lines: 13,
+    length: 40
+});
 
 
-// ///////////////////////////////////////////////////////////////////////
+let polygons_layer = new L.GeoJSON.AJAX(url, {
+    style: style,
+    onEachFeature: onEachFeature,
+    snapIgnore: false,
+}).addTo(map)
+
+
+polygons_layer.on('data:loaded', () => {
+    map.fitBounds(polygons_layer.getBounds())
+    make_fields_list()
+    setTimeout(() => {
+        map.spin(false);
+    }, 1000);
+});
+
+
+
+// $.getJSON('https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_geography_regions_polys.geojson', function(data) {
+//     let polygons_layer = L.geoJson(data).addTo(map);
+//     map.fitBounds(polygons_layer.getBounds())
+//     map.spin(false);
+// });
+
 
 function style(feature) {
     return {
@@ -50,8 +57,9 @@ function onEachFeature(feature, layer) {
         // mouseout: resetHighlight,
         click: zoomToFeature
     });
+    
     makePolygonPopup(layer, feature.properties)
-    if(feature.properties.place_area){
+    if (feature.properties.place_area) {
         area_tool_tip(layer, feature.properties.place_area, 'ga')
     } else {
         area_tool_tip(layer, feature.properties.place_length, 'km')
@@ -62,7 +70,8 @@ function onEachFeature(feature, layer) {
 }
 
 function zoomToFeature(e) {
-    map.fitBounds(e.target.getBounds());
+    let layer = e.target
+    map.fitBounds(layer.getBounds());
 }
 
 
