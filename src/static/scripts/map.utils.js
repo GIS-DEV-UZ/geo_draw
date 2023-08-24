@@ -133,8 +133,13 @@ function make_fields_list(fields_feature) {
   })
 
   if (fields_feature) {
-    features = fields_feature
+    if(fields_feature.length > 1){
+      features = [...fields_feature]
+    } else {
+      features = [...features, ...fields_feature]
+    }
   }
+
 
   features.forEach(feature => {
     geo_type = feature.geometry.type
@@ -234,7 +239,7 @@ function area_tool_tip(layer, area, measure_type) {
 //=============== HIDE AREA TOOLTIP WHEN MAP SCROOLED ================ //
 function hide_area_tooltip(zoom) {
   map.eachLayer(function (layer) {
-    if (zoom <= 15) {
+    if (zoom <= 13) {
       layer.closeTooltip()
     } else {
       layer.openTooltip()
@@ -317,7 +322,7 @@ function Polygon(layer, options) {
   this.field_coords = [];
   this.finalPoint = null;
   this.latlngs = null
-  this.len = layer.feature.geometry.coordinates.length
+  // this.len = layer.feature.geometry.coordinates.length
   this.polygon = null
   // Options
   this.title = options.title
@@ -331,15 +336,34 @@ function Polygon(layer, options) {
   this.polygon = options.polygon
   this.polygon_geojson = null
 
-  if (this.len == 1) {
-    this.latlngs = layer.feature.geometry.coordinates[0][0]
-  } else {
-    this.latlngs = layer._latlngs[0]
-  }
+  // console.log('fhfffff: ' , layer);
 
-  this.latlngs.forEach((latlng) => {
-    this.field_coords.push([latlng[1], latlng[0]]);
-  });
+
+  if(layer?.feature || layer?._latlngs == undefined){
+    if (layer.feature.geometry.coordinates.length == 1) {
+      if(layer.feature.geometry.coordinates[0].length > 1){
+        this.latlngs = layer.feature.geometry.coordinates[0]
+        this.latlngs.forEach((latlng) => {
+          this.field_coords.push([latlng[1], latlng[0]]);
+        });
+      } else if (layer.feature.geometry.coordinates[0].length == 1){
+        this.latlngs = layer.feature.geometry.coordinates[0][0]
+        this.latlngs.forEach((latlng) => {
+          this.field_coords.push([latlng[1], latlng[0]]);
+        });
+  
+      }
+    } else if(layer.feature.geometry.coordinates.length > 1) {
+      this.latlngs = layer.feature.geometry.coordinates
+      this.field_coords = this.latlngs
+    }
+  } else if(layer?._latlngs || layer?.feature == undefined) {
+    this.latlngs = layer._latlngs
+    if (this.latlngs.length == 1) {
+      this.field_coords = this.latlngs[0]
+    }
+  }  
+  
 
   this.polygon = L.polygon(this.field_coords, {
     title: this.title,
@@ -412,3 +436,15 @@ function polyline_length_calculator(layer) {
   return length
 }
 
+function make_polygon_full_coors(layer){
+  let finalPoint =null
+  let field_coords =[]
+  let latlngs = layer._latlngs[0]
+  finalPoint = [latlngs[0]["lat"], latlngs[0]["lng"]];
+  latlngs.forEach((latlng) => {
+    field_coords.push([latlng.lat, latlng.lng]);
+  });
+  field_coords.push(finalPoint)
+
+  return field_coords
+}

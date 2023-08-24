@@ -57,7 +57,8 @@ function onEachFeature(feature, layer) {
         // mouseout: resetHighlight,
         click: zoomToFeature
     });
-    
+    // console.log(layer);
+    // console.log(feature);
     makePolygonPopup(layer, feature.properties)
     if (feature.properties.place_area) {
         area_tool_tip(layer, feature.properties.place_area, 'ga')
@@ -89,6 +90,7 @@ function getBoundsField(field_id) {
 
 // =================== SEARCH BY FIELD NAME ================== //
 function searchFieldName(e) {
+    console.log(checked__field__feature);
     if (checked__field__feature.length != 0) {
         let one_field_feature = checked__field__feature.filter(feature => feature.properties.place_name.toLowerCase().includes(e))
         make_fields_list(one_field_feature)

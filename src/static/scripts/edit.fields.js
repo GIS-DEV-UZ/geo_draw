@@ -1,19 +1,20 @@
 const elFieldCancel = document.querySelector('.map__cancel-btn.edit')
 const elFieldEditFormCloseBtn = document.querySelector('.field__form-edit-cancel')
 const elFieldEditFormSaveBtn = document.querySelector('.field__form-edit-save')
+const elFieldCancelEditBtn = document.querySelector('.map__cancel-edit-btn')
 const elFieldEditPermBtn = document.querySelector('.map__editPerm-btn')
 const elFieldEditFormBox = document.querySelector('.field__edit-leftSide')
 const fieldEditForm = document.querySelector('.field__edit-form')
 const elFieldEditBtn = document.querySelector('.map__edit-btn')
 const elFieldEditFormImageWrapper = document.querySelector(".field__image-wrapper.edit");
 let editable_layer = new L.FeatureGroup().addTo(map);
-let editable_feature_group = new L.FeatureGroup().addTo(map);
+let no_editable_feature_group = new L.FeatureGroup().addTo(map);
 let original_field_border = null
 let original_field = null
 let last_edited_layer = null
 let cutted_layer = null
+let no_editable_polygon = null
 let editable_polygon = null
-let polygon_border = null
 let polygon_feature_for_save = null
 let polygon_layer_for_save = null
 let editable_field_id = null
@@ -25,16 +26,20 @@ function editPolygon(field_id) {
     elMapActions.style.display = 'flex'
     document.querySelector('.crop__dashboard-header__text').textContent = 'Edit Field Page'
 
-    get_user_fields(field_id)
-
+    // get_user_fields(field_id)
+    
+    
     map.eachLayer(function (layer) {  
         let field_props = layer?.feature?.properties
         let field_props_len = null
         if (field_props) {
             field_props_len = Object.keys(layer?.feature?.properties).length
         }
+        
         if (field_props_len) {
             if (layer.feature.properties.id == field_id) {
+                elFieldCancelEditBtn.value = field_id
+                
                 original_field = layer
                 area_tool_tip(layer, polygon_area_calculator(layer, ''), 'ga')
                 map.pm.addControls({
@@ -50,8 +55,7 @@ function editPolygon(field_id) {
                     rotateMode : false,
                 })
 
-                
-                editable_polygon = new Polygon(layer,{
+                no_editable_polygon = new Polygon(layer,{
                     title: "test",
                     fillColor: "#F16E60",
                     fillOpacity: 0.5,
@@ -60,30 +64,41 @@ function editPolygon(field_id) {
                     opacity: 0.7,
                     fill: false,
                 })
-                editable_feature_group.addLayer(editable_polygon)
-                
 
-                polygon_border = new Polygon(layer,{
-                    color: "black",
+                no_editable_feature_group.addLayer(no_editable_polygon)
+
+                no_editable_polygon.pm.enable({
+                    allowEditing : false,
+                    draggable : false,
+                    allowCutting : false,
+                });
+
+                editable_polygon = new Polygon(layer,{
+                    color: "#ffd43b",
                     weight: "3",
                     opacity: 0.7,
                     fill: true,
                     fillColor: '#ced4da',
                     fillOpacity : 0.5,
                     dashArray: "10 10",
-                    polygon: editable_polygon,
+                    polygon: no_editable_polygon,
                 }) 
-                editable_layer.addLayer(polygon_border)
-                  
-                editable_feature_group.pm.enable({
-                    allowEditing : false,
-                    draggable : false,
-                    allowCutting : false,
-                });
-                editable_layer.pm.enable({
+                editable_layer.addLayer(editable_polygon)
+                editable_polygon.pm.enable({
                     allowSelfIntersection: false,
                     draggable : true,
                 });
+
+                // no_editable_feature_group.pm.enable({
+                //     allowEditing : false,
+                //     draggable : false,
+                //     allowCutting : false,
+                // });
+                
+                // editable_layer.pm.enable({
+                //     allowSelfIntersection: false,
+                //     draggable : true,
+                // });
                 map.removeLayer(layer);
 
                   
@@ -97,14 +112,22 @@ function editPolygon(field_id) {
 }
 
 editable_layer.on("pm:edit", (e) => {
-    elFieldEditPermBtn.style.display = 'block'
-    elFieldCancel.style.display = 'block'
+    elFieldEditPermBtn.style.display = 'none'
+    elFieldCancelEditBtn.style.display = 'block'
+    // elFieldCancel.style.display = 'block'
     elFieldEditBtn.style.display = 'none'
     last_edited_layer = e.layer
     editable_layer.addLayer(last_edited_layer)
     polygon_feature_for_save = new FeatureLayer(last_edited_layer, 'Polygon')
     polygon_layer_for_save = last_edited_layer
     area_tool_tip(last_edited_layer, polygon_area_calculator(e, ''), 'ga')
+
+    let isEqualTwoPolygons = JSON.stringify(make_polygon_full_coors(no_editable_polygon)) === JSON.stringify(make_polygon_full_coors(editable_polygon))
+
+    if(!isEqualTwoPolygons){
+        elFieldEditPermBtn.style.display = 'block'
+    }
+
 });
 
 
@@ -148,6 +171,7 @@ elFieldEditPermBtn.addEventListener('click', ()=>{
 
         imageFetcher()
 
+        map.pm.disableGlobalEditMode();
 
 })
 
@@ -166,6 +190,52 @@ map.on("pm:cut", (e) => {
     polygon_layer_for_save = cutted_layer
     area_tool_tip(cutted_layer, polygon_area_calculator(e, 'cut'), 'ga')
 });
+
+
+
+elFieldCancelEditBtn.addEventListener('click', (e)=>{
+    elFieldEditPermBtn.style.display = 'none'
+    elFieldCancelEditBtn.style.display = 'none'
+    elDashboardNav.style.display = 'block'
+    elPanelBox.classList.remove('paneLeft-show')
+    elPanelBtn.classList.remove('paneLeft__bnt-show')
+
+    let canceled_polygon_id = elFieldCancelEditBtn.value
+    polygons_layer.eachLayer(function (layer) { 
+        let field_props = layer?.feature?.properties
+        if(field_props){
+            if(field_props.id == canceled_polygon_id){
+                let feature = layer['feature']
+                let canceled_polygon = new Polygon(layer,{
+                    fillColor : '#20c997',
+                    weight : 2,
+                    opacity : 1,
+                    color : 'white',
+                    dashArray : 3,
+                    fillOpacity : 0.4,
+                    fill : true
+                }) 
+
+                canceled_polygon['feature'] = feature
+                polygons_layer.addLayer(canceled_polygon)
+                
+                onEachFeature(canceled_polygon.feature, canceled_polygon)
+                map.fitBounds(polygons_layer.getBounds())
+            }
+        }
+        L.DomUtil.addClass(layer._path, 'leaflet-interactive');
+     })
+     
+    if(no_editable_feature_group.hasLayer(no_editable_polygon)){
+        no_editable_feature_group.removeLayer(no_editable_polygon)
+    } if(editable_layer.hasLayer(editable_polygon)) {
+        editable_layer.removeLayer(editable_polygon)
+    }
+
+    map.pm.disableGlobalEditMode();
+    map.closePopup();
+})
+
 
 elFieldCancel.addEventListener('click', ()=>{
     elFieldCancel.style.display = 'none'
@@ -188,7 +258,7 @@ elFieldCancel.addEventListener('click', ()=>{
         fillColor: '#ced4da',
         fillOpacity : 0.4,
         dashArray: "10 10",
-        polygon: editable_polygon,
+        polygon: no_editable_polygon,
     }) 
 
     editable_layer.addLayer(original_field_border)

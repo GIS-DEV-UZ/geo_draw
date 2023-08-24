@@ -54,9 +54,14 @@ let featureLayer = {
 // =============== SHOW FIELD ACTIONS ================ //
 elAddFieldBtn.addEventListener('click', () => {
     elDashboardNav.style.display = 'none'
+    
     elDashboardMain.style.width = '100vw'
     elMapActions.style.display = 'flex'
     document.querySelector('.crop__dashboard-header__text').textContent = 'Add Field Page'
+
+    elPanelBox.classList.toggle('paneLeft-show')
+    elPanelBtn.classList.toggle('paneLeft__bnt-show')
+
     setTimeout(function () {
         window.dispatchEvent(new Event("resize"));
     }, 200);
@@ -103,8 +108,8 @@ map.on("pm:create", (e) => {
         console.log('line : ', line_length, 'km');
     } else if (shape_type == "Polygon") {
         polygon_area_calculator(e, 'create')
-        areaInHectares(target_layer)
-
+        field_area = areaInHectares(target_layer)
+        area_tool_tip(target_layer, field_area, 'ga')
         createFeatureLayer(target_layer)
 
         polygon_length = polyline_length_calculator(target_layer)
@@ -112,22 +117,22 @@ map.on("pm:create", (e) => {
 
         last_drawn_layer.addLayer(target_layer)
 
-        async function areaFetcher() {
-            const response = await fetch("/api/polygon/area", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(featureLayer["features"][0]["geometry"]["coordinates"]),
-            });
-            field_area = await response.json();
-            console.log('pgadmin : ', field_area, 'ga');
-            field_area = field_area.toFixed(2)
-            area_tool_tip(target_layer, field_area, 'ga')
-        }
+        // async function areaFetcher() {
+        //     const response = await fetch("/api/polygon/area", {
+        //         method: "POST",
+        //         credentials: "include",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //         },
+        //         body: JSON.stringify(featureLayer["features"][0]["geometry"]["coordinates"]),
+        //     });
+        //     field_area = await response.json();
+        //     console.log('pgadmin : ', field_area, 'ga');
+        //     field_area = field_area.toFixed(2)
+        //     area_tool_tip(target_layer, field_area, 'ga')
+        // }
 
-        areaFetcher()
+        // areaFetcher()
     }
 
 
@@ -256,8 +261,12 @@ elFieldFormCancelBtn.addEventListener('click', () => {
 
 // =============== SAVE FIELD ================ //
 elFieldForm.addEventListener("submit", async (e) => {
-    // e.preventDefault();
+    e.preventDefault();
     let formData = new FormData(elFieldForm);
+
+    elDashboardNav.style.display = 'block'
+    elPanelBox.classList.toggle('paneLeft-show')
+    elPanelBtn.classList.toggle('paneLeft__bnt-show')
 
     if (shape_type == "Line") {
         let data = {
@@ -265,17 +274,18 @@ elFieldForm.addEventListener("submit", async (e) => {
             line_length : line_length,
             geometry: featureLayer["geometry"]
         }
+        console.log(data);
+
+        // let response = await fetch("/api/line/save", {
+        //     method: "POST",
+        //     credentials: "include",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify(data),
+        // });
     
-        let response = await fetch("/api/line/save", {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        });
-    
-        let result = await response.json();
+        // let result = await response.json();
     } else if (shape_type == "Polygon"){
         let data = {
             field_name: formData.get("field_name"),
@@ -284,17 +294,78 @@ elFieldForm.addEventListener("submit", async (e) => {
             field_length: polygon_length,
             geometry: featureLayer["features"][0]["geometry"]
         }
-    
-        let response = await fetch("/api/polygon/save", {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
+
+        make_fields_list([{
+            properties : {
+                crop_code : data["crop_code"], 
+                place_area : data["field_area"], 
+                place_length : data["field_length"], 
+                place_name : data["field_name"] 
             },
-            body: JSON.stringify(data),
-        });
+            geometry : {
+                coordinates : data['geometry']["coordinates"],
+                type : 'MultiPolygon'
+            }
+        }])
+
+        target_layer['feature'] = {
+            geometry : {
+                coordinates : make_polygon_full_coors(target_layer)
+            }
+        }
+
+        if(!polygons_layer.hasLayer(target_layer)){
+            let layer = new Polygon(target_layer, {
+                fillColor : '#20c997',
+                weight : 2,
+                opacity : 1,
+                color : 'white',
+                dashArray : 3,
+                fillOpacity : 0.4,
+                fill : true
+            })
+            
+            if(last_drawn_layer.hasLayer(target_layer)){
+                map.removeLayer(target_layer)
+                last_drawn_layer.removeLayer(target_layer)
+            }
+            layer['feature'] = {
+                properties : {
+                    crop_code : data["crop_code"], 
+                    place_area : data["field_area"], 
+                    place_length : data["field_length"], 
+                    place_name : data["field_name"] ,
+                    id : (Math.random()*1000).toFixed(0)
+                },
+                geometry : {
+                    coordinates : data['geometry']["coordinates"],
+                    type : 'MultiPolygon'
+                }
+            }
+            console.log(layer['feature']['properties']['id']);
+            polygons_layer.addLayer(layer)
+            
+            // polygons_layer.eachLayer(function(layer) {
+            //     onEachFeature(layer.feature, layer)
+            // })
+            map.eachLayer(function(layer) {
+                if(layer.feature){
+                    onEachFeature(layer.feature, layer)
+                    // console.log(layer);
+                }
+            })
+        }
     
-        let result = await response.json();
+        // let response = await fetch("/api/polygon/save", {
+        //     method: "POST",
+        //     credentials: "include",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify(data),
+        // });
+    
+        // let result = await response.json();
     }
     
     elFieldForm.reset()
@@ -315,7 +386,7 @@ function areaInHectares(layer) {
     coordinates.push(finalPoint)
     var polygon = turf.polygon([coordinates]);
     var area = turf.area(polygon);
-    var inHectares = turf.convertArea(area, "meters", "hectares");
+    var inHectares = (turf.convertArea(area, "meters", "hectares")).toFixed(2);
     console.log('turf : ', inHectares, 'ga');
     return inHectares;
 }
