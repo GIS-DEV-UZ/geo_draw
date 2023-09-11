@@ -65,13 +65,14 @@ function editPolygon(field_id) {
                     fill: false,
                 })
 
-                no_editable_feature_group.addLayer(no_editable_polygon)
+                // no_editable_feature_group.addLayer(no_editable_polygon)
 
                 no_editable_polygon.pm.enable({
                     allowEditing : false,
                     draggable : false,
                     allowCutting : false,
                 });
+
 
                 editable_polygon = new Polygon(layer,{
                     color: "#ffd43b",
@@ -81,7 +82,7 @@ function editPolygon(field_id) {
                     fillColor: '#ced4da',
                     fillOpacity : 0.5,
                     dashArray: "10 10",
-                    polygon: no_editable_polygon,
+                    // polygon: no_editable_polygon,
                 }) 
                 editable_layer.addLayer(editable_polygon)
                 editable_polygon.pm.enable({
@@ -100,6 +101,7 @@ function editPolygon(field_id) {
                 //     draggable : true,
                 // });
                 map.removeLayer(layer);
+                console.log(polygons_layer.hasLayer(layer));
 
                   
             } else {
@@ -217,23 +219,30 @@ elFieldCancelEditBtn.addEventListener('click', (e)=>{
                 }) 
 
                 canceled_polygon['feature'] = feature
-                polygons_layer.addLayer(canceled_polygon)
+                polygons_layer.addLayer(canceled_polygon, {
+                    // snapIgnore: false
+                })
                 
                 onEachFeature(canceled_polygon.feature, canceled_polygon)
                 map.fitBounds(polygons_layer.getBounds())
             }
         }
         L.DomUtil.addClass(layer._path, 'leaflet-interactive');
+        console.log(layer);
      })
      
+     console.log(editable_layer.hasLayer(editable_polygon));
     if(no_editable_feature_group.hasLayer(no_editable_polygon)){
         no_editable_feature_group.removeLayer(no_editable_polygon)
     } if(editable_layer.hasLayer(editable_polygon)) {
         editable_layer.removeLayer(editable_polygon)
     }
 
+
     map.pm.disableGlobalEditMode();
     map.closePopup();
+    map.pm.removeControls()
+    map.pm.setGlobalOptions({ snappable: true }); 
 })
 
 

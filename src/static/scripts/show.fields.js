@@ -8,35 +8,59 @@ let crop_checkBox = document.querySelectorAll('.field__crop-checkbox');
 
 // =================== GET USER FIELDS ================== //
 let url = "/get/geometries"
-let url1 = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_geography_regions_polys.geojson"
+// let url1 = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_geography_regions_polys.geojson"
+
+
 map.spin(true, {
     lines: 13,
     length: 40
 });
 
 
-let polygons_layer = new L.GeoJSON.AJAX(url, {
-    style: style,
-    onEachFeature: onEachFeature,
-    snapIgnore: false,
-}).addTo(map)
+// let polygons_layer = new L.GeoJSON.AJAX(url, {
+//     style: style,
+//     onEachFeature: onEachFeature,
+//     snapIgnore: false,
+// }).addTo(map)
 
+// console.log(polygons_layer);
 
-polygons_layer.on('data:loaded', () => {
-    map.fitBounds(polygons_layer.getBounds())
-    make_fields_list()
-    setTimeout(() => {
-        map.spin(false);
-    }, 1000);
-});
+// let hasLayer = polygons_layer._layers
 
-
-
-// $.getJSON('https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_geography_regions_polys.geojson', function(data) {
-//     let polygons_layer = L.geoJson(data).addTo(map);
-//     map.fitBounds(polygons_layer.getBounds())
+// if(hasLayer == 0){
 //     map.spin(false);
+// }
+
+// polygons_layer.on('data:loaded', () => {
+//     map.fitBounds(polygons_layer.getBounds())
+//     make_fields_list()
+//     setTimeout(() => {
+//         map.spin(false);
+//     }, 1000);
 // });
+
+
+
+$.getJSON(url, function (data) {
+    if(!data.data){
+        setTimeout(() => {
+            map.spin(false);
+        }, 1000);
+    }else {
+        let polygons_layer = L.geoJson(data, {
+            style: style,
+            onEachFeature: onEachFeature,
+            snapIgnore: false,
+        }).addTo(map);
+    
+        map.fitBounds(polygons_layer.getBounds())
+        setTimeout(() => {
+            map.spin(false);
+        }, 1000);
+
+    }
+
+});
 
 
 function style(feature) {

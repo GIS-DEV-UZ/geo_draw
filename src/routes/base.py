@@ -51,6 +51,10 @@ def get_geometries():
         }
     polygons = db.session.query(Polygon.place_name, Polygon.crop_code, Polygon.place_area, Polygon.place_length, functions.ST_AsGeoJSON(Polygon.geometry), Polygon.id).filter_by(user_id = current_user.id).all()
     lines = db.session.query(Line.place_name, Line.place_length, functions.ST_AsGeoJSON(Line.geometry), Line.id).filter_by(user_id = current_user.id).all()
+
+    print(len(polygons))
+    print(len(lines))
+
     if polygons or lines:  
         if polygons:          
             for poly in polygons:

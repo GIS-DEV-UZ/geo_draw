@@ -27,6 +27,7 @@ let polygon_length = null
 let controls = {
     position: 'topright',
     drawPolyline: true,
+    drawPolygon: true,
     drawCircleMarker: false,
     rotateMode: false,
     drawMarker: false,
@@ -116,6 +117,7 @@ map.on("pm:create", (e) => {
         console.log('poly_line : ', polygon_length, 'km');
 
         last_drawn_layer.addLayer(target_layer)
+        // last_drawn_layer.addLayer(target_layer)
 
         // async function areaFetcher() {
         //     const response = await fetch("/api/polygon/area", {
@@ -134,6 +136,7 @@ map.on("pm:create", (e) => {
 
         // areaFetcher()
     }
+    console.log(polygons_layer.getLayers())
 
 
 
@@ -276,16 +279,16 @@ elFieldForm.addEventListener("submit", async (e) => {
         }
         console.log(data);
 
-        // let response = await fetch("/api/line/save", {
-        //     method: "POST",
-        //     credentials: "include",
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //     },
-        //     body: JSON.stringify(data),
-        // });
+        let response = await fetch("/api/line/save", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
     
-        // let result = await response.json();
+        let result = await response.json();
     } else if (shape_type == "Polygon"){
         let data = {
             field_name: formData.get("field_name"),
@@ -356,16 +359,16 @@ elFieldForm.addEventListener("submit", async (e) => {
             })
         }
     
-        // let response = await fetch("/api/polygon/save", {
-        //     method: "POST",
-        //     credentials: "include",
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //     },
-        //     body: JSON.stringify(data),
-        // });
+        let response = await fetch("/api/polygon/save", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
     
-        // let result = await response.json();
+        let result = await response.json();
     }
     
     elFieldForm.reset()

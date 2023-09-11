@@ -18,7 +18,7 @@ def create_app(config:str):
         from src.utils.extensions import db
         from src.models.user import User
 
-        # db.drop_all()
+        db.drop_all()
         db.create_all()
         
     with app.test_request_context():
