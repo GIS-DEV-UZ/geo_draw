@@ -1,0 +1,165 @@
+/* MAP */
+
+.map__container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+}
+
+.map__add-btn {
+    position: absolute;
+    right: 10px;
+    bottom: 25px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #4dabf7;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.map__actions {
+    position: absolute;
+    left: calc(50% - 100px);
+    bottom: 25px;
+    width: 200px;
+    /* background-color: #774141; */
+    z-index: 500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.map__cancel-btn,
+.map__delete-btn,
+.map__addPerm-btn,
+.map__draw-btn,
+.map__editPerm-btn,
+.map__edit-btn,
+.map__cancel-edit-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #fff;
+}
+
+.map__close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.map__delete-btn,
+.map__addPerm-btn,
+.map__draw-btn,
+.map__cancel-btn,
+.map__editPerm-btn,
+.map__edit-btn,
+.map__cancel-edit-btn {
+    display: none;
+}
+
+.leaflet-verticalcenter {
+    position: absolute;
+    z-index: 1000;
+    pointer-events: none;
+    top: 50%;
+    /* possible because the placeholder's parent is the map */
+    transform: translateY(-50%);
+    /* using the CSS3 Transform technique */
+    padding-top: 10px;
+}
+
+.leaflet-verticalcenter .leaflet-control {
+    margin-bottom: 10px;
+}
+
+/* FORM */
+
+.field__add-leftSide, .field__edit-leftSide {
+    position: absolute;
+    top: 10px;
+    left: -1000px;
+    width: 450px;
+    height: 97%;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 500;
+    background-color: #dee2e6;
+    transition: left 0.5s;
+}
+
+.field__add-leftSide-show {
+    left: 10px;
+}
+
+.field__edit-leftSide-show {
+    left: 10px;
+}
+
+.fields__panel-item:not(:last-child) {
+    margin-bottom: 8px;
+}
+
+.field__image {
+    width: 100%;
+    height: 150px;
+}
+
+.field__actions {}
+
+.leaflet-customTooltip {
+    position: absolute;
+    padding: 5px;
+    background-color: rgb(252, 244, 246);
+    border: 0px solid rgb(151, 133, 137);
+    border-radius: 4px;
+    color: #000;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    pointer-events: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* .leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane>svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path{
+
+} */
+
+.layer-unclickable {
+    /* cursor: none; */
+    pointer-events: none !important;
+}
+
+.line-control, .polygon-control {
+    display: none;
+}
+
+/* .leaflet-popup-tip {
+    width: 0px;
+    height: 0px;
+    border: 0px;
+  }  */
+
+
+/* .leaflet-control-layers-toggle:hover + .leaflet-control-layers.leaflet-control.leaflet-control-layers-expanded{
+    all: initial!important;
+}
+
+.leaflet-control-layers-toggle:hover .leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle{
+    display: block!important;
+} */
